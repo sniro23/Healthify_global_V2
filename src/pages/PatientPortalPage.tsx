@@ -15,7 +15,10 @@ const PatientPortalPage = () => {
           </Button>
         </Link>
       </div>
-      <PatientPortal />
+      {/* Remove <PatientPortal /> direct call; ensure nested routing works */}
+      <div className="flex-1 min-h-0">
+        <PatientPortal />
+      </div>
     </div>
   );
 };
