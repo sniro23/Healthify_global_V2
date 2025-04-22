@@ -1,12 +1,35 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import React, { useState } from "react";
+import { PatientPortal } from "@/components/PatientPortal";
+import { DoctorPortal } from "@/components/DoctorPortal";
+import { AdminPortal } from "@/components/AdminPortal";
+import { PortalSwitcher } from "@/components/PortalSwitcher";
+
+type PortalType = "patient" | "doctor" | "admin";
 
 const Index = () => {
+  const [currentPortal, setCurrentPortal] = useState<PortalType>("patient");
+
+  const renderPortal = () => {
+    switch (currentPortal) {
+      case "patient":
+        return <PatientPortal />;
+      case "doctor":
+        return <DoctorPortal />;
+      case "admin":
+        return <AdminPortal />;
+      default:
+        return <PatientPortal />;
+    }
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="flex flex-col h-screen">
+      <PortalSwitcher
+        onSelectPortal={setCurrentPortal}
+        currentPortal={currentPortal}
+      />
+      {renderPortal()}
     </div>
   );
 };

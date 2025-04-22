@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,17 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
-				}
+				},
+				// Healthify Brand Colors
+				'health-primary': 'var(--health-primary)',
+				'health-secondary': 'var(--health-secondary)',
+				'health-accent': 'var(--health-accent)',
+				'health-highlight': 'var(--health-highlight)',
+				// Semantic Colors
+				'health-warning': 'var(--health-warning)',
+				'health-success': 'var(--health-success)',
+				'health-error': 'var(--health-error)',
+				'health-muted': 'var(--health-muted)',
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
