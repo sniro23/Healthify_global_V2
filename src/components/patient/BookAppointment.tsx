@@ -3,7 +3,7 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/packages/ui-kit";
 import { 
-  Calendar, Clock, MapPin, Phone, Users, Video
+  Calendar, Clock, MapPin, Phone, Users, Video, MessageCircle
 } from "lucide-react";
 
 const BookAppointment = () => {
