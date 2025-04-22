@@ -10,6 +10,22 @@ import DoctorPortalPage from "./pages/DoctorPortalPage";
 import AdminPortalPage from "./pages/AdminPortalPage";
 import NotFound from "./pages/NotFound";
 
+// Patient Portal Components
+import Dashboard from "./components/patient/Dashboard";
+import Appointments from "./components/patient/Appointments";
+import HealthRecords from "./components/patient/HealthRecords";
+import Messages from "./components/patient/Messages";
+import Prescriptions from "./components/patient/Prescriptions";
+import Profile from "./components/patient/Profile";
+import AppointmentDetails from "./components/patient/AppointmentDetails";
+import BookAppointment from "./components/patient/BookAppointment";
+import LabReports from "./components/patient/LabReports";
+import MedicationDetails from "./components/patient/MedicationDetails";
+import VisitSummary from "./components/patient/VisitSummary";
+import HelpCenter from "./components/patient/HelpCenter";
+import ContactSupport from "./components/patient/ContactSupport";
+import PaymentSettings from "./components/patient/PaymentSettings";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -20,7 +36,22 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          <Route path="/patient" element={<PatientPortalPage />} />
+          <Route path="/patient" element={<PatientPortalPage />}>
+            <Route index element={<Dashboard />} />
+            <Route path="appointments" element={<Appointments />} />
+            <Route path="appointments/book" element={<BookAppointment />} />
+            <Route path="appointments/:id" element={<AppointmentDetails />} />
+            <Route path="records" element={<HealthRecords />} />
+            <Route path="records/labs" element={<LabReports />} />
+            <Route path="messages" element={<Messages />} />
+            <Route path="prescriptions" element={<Prescriptions />} />
+            <Route path="prescriptions/:id" element={<MedicationDetails />} />
+            <Route path="visit-summary/:id" element={<VisitSummary />} />
+            <Route path="profile" element={<Profile />} />
+            <Route path="help" element={<HelpCenter />} />
+            <Route path="contact" element={<ContactSupport />} />
+            <Route path="payment-settings" element={<PaymentSettings />} />
+          </Route>
           <Route path="/doctor" element={<DoctorPortalPage />} />
           <Route path="/admin" element={<AdminPortalPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

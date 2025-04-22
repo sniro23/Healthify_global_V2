@@ -1,21 +1,23 @@
+
 import React from "react";
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
-import { Activity, Calendar, FileText, Heart, MessageCircle, User } from "lucide-react";
+import { Button, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
+import { 
+  Activity, Calendar, FileText, Heart, MessageCircle, User, 
+  HelpCircle, Settings, Bell, LogOut, Pill, TestTube 
+} from "lucide-react";
 import { Link, Outlet, useLocation, Navigate, Routes, Route } from "react-router-dom";
-import Dashboard from "./patient/Dashboard";
-import Appointments from "./patient/Appointments";
-import HealthRecords from "./patient/HealthRecords";
-import Messages from "./patient/Messages";
-import Prescriptions from "./patient/Prescriptions";
-import Profile from "./patient/Profile";
 
 const sidebarItems = [
   { label: "Dashboard", icon: Activity, route: "" },
   { label: "Appointments", icon: Calendar, route: "appointments" },
   { label: "Health Records", icon: Heart, route: "records" },
+  { label: "Lab Reports", icon: TestTube, route: "records/labs" },
   { label: "Messages", icon: MessageCircle, route: "messages" },
-  { label: "Prescriptions", icon: FileText, route: "prescriptions" },
+  { label: "Prescriptions", icon: Pill, route: "prescriptions" },
   { label: "Profile", icon: User, route: "profile" },
+  { label: "Payment Settings", icon: Settings, route: "payment-settings" },
+  { label: "Help Center", icon: HelpCircle, route: "help" },
+  { label: "Contact Support", icon: Bell, route: "contact" },
 ];
 
 export function PatientPortal() {
@@ -25,17 +27,30 @@ export function PatientPortal() {
   // Split current pathname to derive subroute
   const activePath = location.pathname.split("/patient/")[1]?.split("/")[0] || "";
 
+  // Get subscription status - would come from API in a real app
+  const [subscription, setSubscription] = React.useState({
+    tier: "Category B",
+    active: true
+  });
+
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-full">
       <Sidebar collapsed={collapsed}>
         <SidebarHeader collapsed={collapsed}>
           <div className="flex items-center">
-            <img
-              src="https://via.placeholder.com/40x40"
-              alt="Healthify Logo"
-              className="h-8 w-8 mr-2"
-            />
-            {!collapsed && <h1 className="text-xl font-bold text-health-primary">Healthify</h1>}
+            <Avatar className="h-8 w-8 mr-2 bg-health-highlight text-health-primary">
+              <span>JD</span>
+            </Avatar>
+            {!collapsed && (
+              <div className="flex flex-col">
+                <h1 className="text-base font-semibold text-health-primary">John Doe</h1>
+                <div className="flex items-center">
+                  <Badge variant="outline" className="text-xs px-1 py-0 h-5 bg-health-highlight text-health-primary border-health-primary">
+                    {subscription.tier}
+                  </Badge>
+                </div>
+              </div>
+            )}
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -44,7 +59,7 @@ export function PatientPortal() {
               // Determine if the sidebar item is active
               const isActive =
                 (item.route === "" && (activePath === "" || activePath === undefined)) ||
-                (item.route !== "" && activePath === item.route);
+                (item.route !== "" && (activePath === item.route || location.pathname.includes(`/patient/${item.route}`)));
 
               return (
                 <Link
@@ -65,9 +80,17 @@ export function PatientPortal() {
           </div>
         </SidebarContent>
         <SidebarFooter>
+          <Link to="/" style={{ textDecoration: "none", width: "100%" }}>
+            <SidebarItem
+              icon={<LogOut className="h-5 w-5" />}
+              collapsed={collapsed}
+            >
+              Logout
+            </SidebarItem>
+          </Link>
           <Button
             variant="ghost"
-            className="w-full justify-start"
+            className="w-full justify-start mt-2"
             onClick={() => setCollapsed(!collapsed)}
           >
             {collapsed ? "→" : "← Collapse"}
@@ -75,16 +98,8 @@ export function PatientPortal() {
         </SidebarFooter>
       </Sidebar>
 
-      <div className="flex-1 overflow-auto bg-white">
-        <Routes>
-          <Route index element={<Dashboard />} />
-          <Route path="appointments" element={<Appointments />} />
-          <Route path="records" element={<HealthRecords />} />
-          <Route path="messages" element={<Messages />} />
-          <Route path="prescriptions" element={<Prescriptions />} />
-          <Route path="profile" element={<Profile />} />
-          <Route path="*" element={<Navigate to="" replace />} />
-        </Routes>
+      <div className="flex-1 overflow-auto bg-white p-4">
+        <Outlet />
       </div>
     </div>
   );
