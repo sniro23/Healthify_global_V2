@@ -85,7 +85,7 @@ export function DoctorPortal() {
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold mb-1">Pending Chats</h3>
-              <p className="text-3xl font-bold text-health-secondary">5</p>
+              <p className="text-3xl font-bold text-health-primary">5</p>
               <p className="text-sm text-gray-600">2 urgent</p>
             </CardContent>
           </Card>
@@ -142,7 +142,7 @@ export function DoctorPortal() {
                         <p className="text-sm text-gray-600">Prescription Renewal • 2:00 PM</p>
                       </div>
                     </div>
-                    <Badge variant="healthSecondary">Chat</Badge>
+                    <Badge variant="secondary">Chat</Badge>
                   </div>
                 </div>
               </CardContent>
@@ -158,8 +158,8 @@ export function DoctorPortal() {
               </CardHeader>
               <CardContent className="space-y-3">
                 <Button variant="health" className="w-full">Start Consultation</Button>
-                <Button variant="healthSecondary" className="w-full">Write Prescription</Button>
-                <Button variant="healthAccent" className="w-full">View Patient Records</Button>
+                <Button variant="secondary" className="w-full">Write Prescription</Button>
+                <Button variant="secondary" className="w-full">View Patient Records</Button>
                 <Button variant="outline" className="w-full">Schedule Appointment</Button>
               </CardContent>
             </Card>
