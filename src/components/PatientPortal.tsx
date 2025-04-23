@@ -2,7 +2,7 @@
 import React from "react";
 import { Button, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
 import { 
-  Activity, Calendar, FileText, Heart, MessageCircle, User, 
+  Activity, Calendar, Heart, MessageCircle, User, 
   HelpCircle, Settings, Bell, LogOut, Pill, TestTube 
 } from "lucide-react";
 import { Link, Outlet, useLocation } from "react-router-dom";
@@ -38,7 +38,7 @@ export function PatientPortal() {
   });
 
   return (
-    <div className="flex h-full min-h-screen bg-health-highlight md:bg-white">
+    <div className="flex h-full bg-health-highlight md:bg-white">
       {/* Desktop Sidebar - Hidden on Mobile */}
       <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <Sidebar collapsed={collapsed}>
@@ -115,10 +115,9 @@ export function PatientPortal() {
       </div>
 
       <div
-        className={`flex-1 overflow-auto bg-white min-h-screen flex flex-col
+        className={`flex-1 overflow-auto bg-white flex flex-col
           ${isMobile ? 'pb-20 px-2 pt-2' : 'p-3 md:p-6'}
         `}
-        style={{ minHeight: "100dvh" }}
       >
         {/* Mobile header */}
         {isMobile && (
@@ -132,7 +131,7 @@ export function PatientPortal() {
             <span className="font-semibold text-health-primary text-lg">Healthify</span>
           </header>
         )}
-        <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col min-h-0 max-w-full">
           <Outlet />
         </div>
       </div>
@@ -142,4 +141,3 @@ export function PatientPortal() {
     </div>
   );
 }
-
