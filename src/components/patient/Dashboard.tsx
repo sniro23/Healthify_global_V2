@@ -1,10 +1,11 @@
-
 import React from "react";
-import { Link } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardContent } from "@/packages/ui-kit";
-import { Calendar, Heart, FileText, MessageCircle, Activity, Pill, TestTube, Activity as VitalsIcon } from "lucide-react";
-import { Button } from "@/packages/ui-kit";
+import { Calendar, Heart, TestTube, Pill, MessageCircle, Activity as VitalsIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/packages/ui-kit";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SubscriptionCard } from "../dashboard/SubscriptionCard";
+import { NextAppointmentCard } from "../dashboard/NextAppointmentCard";
+import { DashboardNav } from "../dashboard/DashboardNav";
+import { Link } from "react-router-dom";
 
 const subscriptionTier = {
   name: "Category B",
@@ -25,6 +26,33 @@ const mockUpcomingAppointment = {
   type: "General Check-up"
 };
 
+const dashboardNav = [
+  {
+    icon: Calendar,
+    title: "Appointments",
+    description: "Schedule & manage appointments",
+    link: "/patient/appointments"
+  },
+  {
+    icon: Heart,
+    title: "Health Records",
+    description: "View your medical history",
+    link: "/patient/records"
+  },
+  {
+    icon: TestTube,
+    title: "Lab Reports",
+    description: "Access test results",
+    link: "/patient/records/labs"
+  },
+  {
+    icon: Pill,
+    title: "Prescriptions",
+    description: "Manage your medications",
+    link: "/patient/prescriptions"
+  },
+];
+
 const mockMessages = [
   { id: "m1", from: "Dr. Jane Smith", preview: "Your lab results look good!", unread: true },
   { id: "m2", from: "Reception", preview: "Reminder about your appointment", unread: false }
@@ -37,33 +65,6 @@ const mockVitals = [
   { name: "Blood Glucose", value: "110 mg/dL", status: "elevated" }
 ];
 
-const dashboardNav = [
-  {
-    icon: <Calendar className="h-8 w-8 text-health-primary" />,
-    title: "Appointments",
-    description: "Schedule & manage appointments",
-    link: "/patient/appointments"
-  },
-  {
-    icon: <Heart className="h-8 w-8 text-health-primary" />,
-    title: "Health Records",
-    description: "View your medical history",
-    link: "/patient/records"
-  },
-  {
-    icon: <TestTube className="h-8 w-8 text-health-primary" />,
-    title: "Lab Reports",
-    description: "Access test results",
-    link: "/patient/records/labs"
-  },
-  {
-    icon: <Pill className="h-8 w-8 text-health-primary" />,
-    title: "Prescriptions",
-    description: "Manage your medications",
-    link: "/patient/prescriptions"
-  },
-];
-
 const Dashboard = () => {
   const isMobile = useIsMobile();
   
@@ -74,65 +75,14 @@ const Dashboard = () => {
           <h2 className="text-xl md:text-2xl font-bold mb-2">Welcome, John Doe!</h2>
           <p className="text-gray-600">Let's keep track of your health today</p>
         </div>
-        <div className="w-full lg:w-auto">
-          <div className="bg-health-highlight p-3 rounded-md border border-health-primary/20">
-            <div className="flex items-center">
-              <div className="bg-health-primary text-white p-1 rounded-md">
-                <Activity className="h-5 w-5" />
-              </div>
-              <div className="ml-2">
-                <p className="font-medium text-health-primary">Your Plan: {subscriptionTier.name}</p>
-                <p className="text-xs text-gray-600">{subscriptionTier.price}</p>
-              </div>
-            </div>
-            <div className="mt-2 text-xs text-gray-700">
-              <ul className="pl-5 list-disc space-y-1">
-                {subscriptionTier.benefits.map((benefit, index) => (
-                  <li key={index}>{benefit}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
+        <SubscriptionCard subscription={subscriptionTier} />
       </div>
       
       {mockUpcomingAppointment && (
-        <Card className="border-l-4 border-l-health-primary w-full">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">Next Appointment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between">
-              <div>
-                <div className="flex items-center text-gray-600 mb-1">
-                  <Calendar className="h-4 w-4 mr-1 flex-shrink-0" />
-                  <span className="text-sm">{mockUpcomingAppointment.date}, {mockUpcomingAppointment.time}</span>
-                </div>
-                <p className="font-medium">{mockUpcomingAppointment.type} with {mockUpcomingAppointment.doctor}</p>
-              </div>
-              <div className="mt-3 sm:mt-0">
-                <Link to={`/patient/appointments/${mockUpcomingAppointment.id}`}>
-                  <Button variant="outline" size="sm">View Details</Button>
-                </Link>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <NextAppointmentCard appointment={mockUpcomingAppointment} />
       )}
       
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {dashboardNav.map((item) => (
-          <Link key={item.title} to={item.link} style={{ textDecoration: 'none' }}>
-            <Card className="flex flex-col items-center justify-center px-2 py-4 hover:shadow-lg transition-shadow animate-fade-in h-full">
-              <CardHeader className="flex flex-col items-center space-y-2 border-none bg-transparent p-2">
-                {item.icon}
-                <CardTitle className="text-base text-gray-700">{item.title}</CardTitle>
-              </CardHeader>
-              <CardContent className="text-center text-gray-600 text-sm p-2">{item.description}</CardContent>
-            </Card>
-          </Link>
-        ))}
-      </div>
+      <DashboardNav items={dashboardNav} />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Card>
