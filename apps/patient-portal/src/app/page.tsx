@@ -1,12 +1,10 @@
 
-import { Button } from '@healthify/ui';
+import { PatientDashboard } from "@/components/dashboard/patient-dashboard";
 
-export default function Home() {
+export default function Page() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      <h1 className="text-4xl font-bold">Healthify Patient Portal</h1>
-      <Button variant="health">Get Started</Button>
+    <main className="flex min-h-screen flex-col">
+      <PatientDashboard />
     </main>
   );
 }
-
