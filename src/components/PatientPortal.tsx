@@ -1,3 +1,4 @@
+
 import React from "react";
 import { 
   Activity, Calendar, Heart, MessageCircle, User, 
@@ -7,6 +8,16 @@ import { Link, Outlet, useLocation } from "react-router-dom";
 import MobileNavigation from "./patient/MobileNavigation";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useToast } from "@/hooks/use-toast";
+import { 
+  Button, 
+  Sidebar, 
+  SidebarHeader, 
+  SidebarContent, 
+  SidebarItem, 
+  SidebarFooter, 
+  Avatar, 
+  Badge 
+} from "@/packages/ui-kit";
 
 const sidebarItems = [
   { label: "Dashboard", icon: Activity, route: "" },
