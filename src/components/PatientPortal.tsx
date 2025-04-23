@@ -8,6 +8,7 @@ import {
 import { Link, Outlet, useLocation } from "react-router-dom";
 import MobileNavigation from "./patient/MobileNavigation";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useToast } from "@/hooks/use-toast";
 
 const sidebarItems = [
   { label: "Dashboard", icon: Activity, route: "" },
@@ -26,6 +27,7 @@ export function PatientPortal() {
   const [collapsed, setCollapsed] = React.useState(false);
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { toast } = useToast();
 
   // Get the current path segments
   const pathSegments = location.pathname.split('/');
@@ -36,6 +38,14 @@ export function PatientPortal() {
     tier: "Category B",
     active: true
   });
+
+  const toggleSidebar = () => {
+    setCollapsed(!collapsed);
+    toast({
+      title: collapsed ? "Sidebar expanded" : "Sidebar collapsed",
+      duration: 1500,
+    });
+  };
 
   return (
     <div className="flex h-full bg-health-highlight md:bg-white">
@@ -106,7 +116,7 @@ export function PatientPortal() {
             <Button
               variant="ghost"
               className="w-full justify-start mt-2"
-              onClick={() => setCollapsed(!collapsed)}
+              onClick={toggleSidebar}
             >
               {collapsed ? "→" : "← Collapse"}
             </Button>
@@ -121,14 +131,23 @@ export function PatientPortal() {
       >
         {/* Mobile header */}
         {isMobile && (
-          <header className="flex items-center gap-2 mb-3">
-            <img
-              src="/lovable-uploads/859df17a-4941-498f-967c-2c947e2317a4.png"
-              alt="Healthify Logo"
-              className="h-7 w-auto"
-              style={{ maxWidth: 100 }}
-            />
-            <span className="font-semibold text-health-primary text-lg">Healthify</span>
+          <header className="flex items-center justify-between gap-2 mb-3 p-2 bg-white rounded-md shadow-sm">
+            <div className="flex items-center">
+              <img
+                src="/lovable-uploads/8d5756c5-71ca-468e-9d01-536c025ecfdb.png"
+                alt="Healthify Icon"
+                className="h-6 w-6 mr-2"
+              />
+              <img
+                src="/lovable-uploads/859df17a-4941-498f-967c-2c947e2317a4.png"
+                alt="Healthify Logo"
+                className="h-5 w-auto"
+                style={{ maxWidth: 100 }}
+              />
+            </div>
+            <Badge variant="outline" className="text-xs px-1 py-0 h-5 bg-health-highlight text-health-primary border-health-primary">
+              {subscription.tier}
+            </Badge>
           </header>
         )}
         <div className="flex-1 flex flex-col min-h-0 max-w-full">
