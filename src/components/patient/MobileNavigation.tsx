@@ -1,7 +1,6 @@
 
 import React from "react";
-import Link from "next/link";
-import { useRouter } from "next/router";
+import { Link, useLocation } from "react-router-dom";
 import { Activity, Calendar, Heart, MessageCircle, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -14,20 +13,20 @@ const navItems = [
 ];
 
 const MobileNavigation = () => {
-  const router = useRouter();
+  const location = useLocation();
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 md:hidden">
       <nav className="flex justify-around">
         {navItems.map((item) => {
           const isActive = 
-            (item.path === "/patient" && router.pathname === "/patient") ||
-            (item.path !== "/patient" && router.pathname.startsWith(item.path));
+            (item.path === "/patient" && location.pathname === "/patient") ||
+            (item.path !== "/patient" && location.pathname.startsWith(item.path));
             
           return (
             <Link
               key={item.path}
-              href={item.path}
+              to={item.path}
               className={cn(
                 "flex flex-col items-center py-2 px-3",
                 isActive 

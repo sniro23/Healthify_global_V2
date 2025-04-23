@@ -6,7 +6,11 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  // We'll configure Next.js to find components in the src directory
+  // Define environment variables
+  env: {
+    // Add any environment variables needed by Next.js here
+  },
+  // Configure webpack
   webpack(config) {
     config.resolve.alias = {
       ...config.resolve.alias,
