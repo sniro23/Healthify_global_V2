@@ -19,11 +19,12 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ collapsed, setColl
         <SidebarHeader collapsed={collapsed}>
           <div className="flex items-center">
             <img 
-              src="/lovable-uploads/31616087-bfd6-4911-96a7-6815ec19ce8d.png"
+              src="/lovable-uploads/859df17a-4941-498f-967c-2c947e2317a4.png"
               alt="Healthify Logo"
-              className="h-8 w-8 mr-2"
+              className={`h-8 ${collapsed ? "w-8" : "w-24"} mr-2 duration-300 ease-in-out`}
+              style={{ objectFit: "contain" }}
             />
-            {!collapsed && <h1 className="text-xl font-bold text-health-primary">Healthify MD</h1>}
+            {!collapsed && <h1 className="text-xl font-bold text-health-primary hidden lg:block">Healthify</h1>}
           </div>
         </SidebarHeader>
         <SidebarContent>
@@ -79,10 +80,10 @@ export const DoctorSidebar: React.FC<DoctorSidebarProps> = ({ collapsed, setColl
             </SidebarItem>
           </Link>
           <button 
-            className="w-full justify-start text-left text-gray-600 p-2 hover:bg-gray-100 rounded"
+            className="w-full justify-start text-left text-gray-600 p-2 hover:bg-gray-100 rounded mt-1"
             onClick={() => setCollapsed(!collapsed)}
           >
-            {collapsed ? "→" : "← Collapse"}
+            {collapsed ? <span>&rarr;</span> : <span>&larr; Collapse</span>}
           </button>
         </SidebarFooter>
       </Sidebar>

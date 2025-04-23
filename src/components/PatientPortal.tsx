@@ -32,24 +32,33 @@ export function PatientPortal() {
   const activePath = pathSegments.length > 2 ? pathSegments[2] : "";
 
   // Get subscription status - would come from API in a real app
-  const [subscription, setSubscription] = React.useState({
+  const [subscription] = React.useState({
     tier: "Category B",
     active: true
   });
 
   return (
-    <div className="flex h-full">
+    <div className="flex h-full min-h-screen bg-health-highlight md:bg-white">
       {/* Desktop Sidebar - Hidden on Mobile */}
       <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <Sidebar collapsed={collapsed}>
           <SidebarHeader collapsed={collapsed}>
             <div className="flex items-center">
-              <Avatar className="h-8 w-8 mr-2 bg-health-highlight text-health-primary">
-                <span>JD</span>
+              <Avatar className="h-8 w-8 mr-2 !bg-transparent">
+                <img
+                  src="/lovable-uploads/8d5756c5-71ca-468e-9d01-536c025ecfdb.png"
+                  alt="Healthify Icon"
+                  className="h-8 w-8"
+                />
               </Avatar>
               {!collapsed && (
                 <div className="flex flex-col">
-                  <h1 className="text-base font-semibold text-health-primary">John Doe</h1>
+                  <img
+                    src="/lovable-uploads/859df17a-4941-498f-967c-2c947e2317a4.png"
+                    alt="Healthify Logo"
+                    className="h-8 w-auto mb-1"
+                    style={{ maxWidth: 120 }}
+                  />
                   <div className="flex items-center">
                     <Badge variant="outline" className="text-xs px-1 py-0 h-5 bg-health-highlight text-health-primary border-health-primary">
                       {subscription.tier}
@@ -105,8 +114,27 @@ export function PatientPortal() {
         </Sidebar>
       </div>
 
-      <div className={`flex-1 overflow-auto bg-white ${isMobile ? 'pb-20' : 'p-4'}`}>
-        <Outlet />
+      <div
+        className={`flex-1 overflow-auto bg-white min-h-screen flex flex-col
+          ${isMobile ? 'pb-20 px-2 pt-2' : 'p-3 md:p-6'}
+        `}
+        style={{ minHeight: "100dvh" }}
+      >
+        {/* Mobile header */}
+        {isMobile && (
+          <header className="flex items-center gap-2 mb-3">
+            <img
+              src="/lovable-uploads/859df17a-4941-498f-967c-2c947e2317a4.png"
+              alt="Healthify Logo"
+              className="h-7 w-auto"
+              style={{ maxWidth: 100 }}
+            />
+            <span className="font-semibold text-health-primary text-lg">Healthify</span>
+          </header>
+        )}
+        <div className="flex-1 flex flex-col min-h-0">
+          <Outlet />
+        </div>
       </div>
       
       {/* Mobile Navigation - Visible only on mobile */}
@@ -114,3 +142,4 @@ export function PatientPortal() {
     </div>
   );
 }
+

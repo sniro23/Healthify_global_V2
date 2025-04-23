@@ -15,26 +15,28 @@ export function DoctorPortal() {
   const location = useLocation();
   
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className={`flex h-screen bg-gray-100 ${isMobile ? "flex-col" : ""}`}>
       <DoctorSidebar 
         collapsed={collapsed} 
         setCollapsed={setCollapsed}
         isMobile={isMobile}
       />
 
-      <div className="flex-1 overflow-auto p-0">
+      <div className={`flex-1 overflow-auto bg-white flex flex-col min-h-0 ${isMobile ? "pb-20 px-2 pt-2" : "p-3 md:p-6"}`}>
         <DoctorHeader
           isOnline={isOnline}
           setIsOnline={setIsOnline}
         />
 
-        {location.pathname === '/doctor' && (
-          <DoctorDashboardContent />
-        )}
+        <div className="flex-1 flex flex-col min-h-0">
+          {location.pathname === '/doctor' && (
+            <DoctorDashboardContent />
+          )}
 
-        {location.pathname === '/doctor/notifications' && (
-          <NotificationScreen />
-        )}
+          {location.pathname === '/doctor/notifications' && (
+            <NotificationScreen />
+          )}
+        </div>
       </div>
       
       {isMobile && <MobileNavigation />}
