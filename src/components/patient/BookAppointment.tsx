@@ -5,6 +5,7 @@ import { Button, Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/
 import { 
   Calendar, Clock, MapPin, Phone, Users, Video, MessageCircle
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const BookAppointment = () => {
   const navigate = useNavigate();
@@ -12,6 +13,7 @@ const BookAppointment = () => {
   const [appointmentType, setAppointmentType] = React.useState("");
   const [consultationType, setConsultationType] = React.useState("");
   const [deliveryMethod, setDeliveryMethod] = React.useState("");
+  const isMobile = useIsMobile();
 
   const handleNext = () => {
     if (step < 3) {
@@ -31,9 +33,9 @@ const BookAppointment = () => {
   };
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-6 flex items-center gap-2">
-        <Calendar className="h-6 w-6 text-health-primary" />
+    <div className={`max-w-3xl mx-auto ${isMobile ? 'px-2' : ''}`}>
+      <h2 className="text-xl md:text-2xl font-bold mb-4 md:mb-6 flex items-center gap-2">
+        <Calendar className="h-5 w-5 md:h-6 md:w-6 text-health-primary" />
         Book an Appointment
       </h2>
 
@@ -50,15 +52,15 @@ const BookAppointment = () => {
         </CardHeader>
         <CardContent className="py-4">
           {step === 1 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
               {["Doctor", "Therapist", "Physiotherapist"].map((type) => (
                 <Button
                   key={type}
                   variant={appointmentType === type ? "default" : "outline"}
-                  className={`h-24 flex-col ${appointmentType === type ? "bg-health-primary" : "border-gray-300"}`}
+                  className={`h-20 md:h-24 flex-col ${appointmentType === type ? "bg-health-primary" : "border-gray-300"}`}
                   onClick={() => setAppointmentType(type)}
                 >
-                  <Users className="h-6 w-6 mb-2" />
+                  <Users className="h-5 w-5 md:h-6 md:w-6 mb-2" />
                   {type}
                 </Button>
               ))}
@@ -66,17 +68,17 @@ const BookAppointment = () => {
           )}
 
           {step === 2 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
               {["Urgent", "Scheduled", "Home Visit"].map((type) => (
                 <Button
                   key={type}
                   variant={consultationType === type ? "default" : "outline"}
-                  className={`h-24 flex-col ${consultationType === type ? "bg-health-primary" : "border-gray-300"}`}
+                  className={`h-20 md:h-24 flex-col ${consultationType === type ? "bg-health-primary" : "border-gray-300"}`}
                   onClick={() => setConsultationType(type)}
                 >
-                  {type === "Urgent" && <Clock className="h-6 w-6 mb-2" />}
-                  {type === "Scheduled" && <Calendar className="h-6 w-6 mb-2" />}
-                  {type === "Home Visit" && <MapPin className="h-6 w-6 mb-2" />}
+                  {type === "Urgent" && <Clock className="h-5 w-5 md:h-6 md:w-6 mb-2" />}
+                  {type === "Scheduled" && <Calendar className="h-5 w-5 md:h-6 md:w-6 mb-2" />}
+                  {type === "Home Visit" && <MapPin className="h-5 w-5 md:h-6 md:w-6 mb-2" />}
                   {type}
                 </Button>
               ))}
@@ -84,17 +86,17 @@ const BookAppointment = () => {
           )}
 
           {step === 3 && (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 md:gap-4">
               {["Text", "Audio", "Video"].map((method) => (
                 <Button
                   key={method}
                   variant={deliveryMethod === method ? "default" : "outline"}
-                  className={`h-24 flex-col ${deliveryMethod === method ? "bg-health-primary" : "border-gray-300"}`}
+                  className={`h-20 md:h-24 flex-col ${deliveryMethod === method ? "bg-health-primary" : "border-gray-300"}`}
                   onClick={() => setDeliveryMethod(method)}
                 >
-                  {method === "Text" && <MessageCircle className="h-6 w-6 mb-2" />}
-                  {method === "Audio" && <Phone className="h-6 w-6 mb-2" />}
-                  {method === "Video" && <Video className="h-6 w-6 mb-2" />}
+                  {method === "Text" && <MessageCircle className="h-5 w-5 md:h-6 md:w-6 mb-2" />}
+                  {method === "Audio" && <Phone className="h-5 w-5 md:h-6 md:w-6 mb-2" />}
+                  {method === "Video" && <Video className="h-5 w-5 md:h-6 md:w-6 mb-2" />}
                   {method}
                 </Button>
               ))}
@@ -124,8 +126,8 @@ const BookAppointment = () => {
             <CardTitle className="text-lg">Select Date & Time</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-gray-100 p-4 rounded min-h-52 flex items-center justify-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="bg-gray-100 p-4 rounded min-h-40 md:min-h-52 flex items-center justify-center">
                 <p className="text-gray-500">Calendar Placeholder</p>
               </div>
               <div>

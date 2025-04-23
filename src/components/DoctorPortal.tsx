@@ -1,65 +1,68 @@
-
 import React from "react";
 import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
 import { Calendar, ClipboardList, MessageCircle, Settings, Users, Activity } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export function DoctorPortal() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [isOnline, setIsOnline] = React.useState(true);
+  const isMobile = useIsMobile();
   
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar collapsed={collapsed}>
-        <SidebarHeader collapsed={collapsed}>
-          <div className="flex items-center">
-            <img 
-              src="https://via.placeholder.com/40x40" 
-              alt="Healthify Logo"
-              className="h-8 w-8 mr-2"
-            />
-            {!collapsed && <h1 className="text-xl font-bold text-health-primary">Healthify MD</h1>}
-          </div>
-        </SidebarHeader>
-        <SidebarContent>
-          <div className="space-y-2">
-            <SidebarItem active icon={<Activity className="h-5 w-5" />} collapsed={collapsed}>
-              Dashboard
-            </SidebarItem>
-            <SidebarItem icon={<Users className="h-5 w-5" />} collapsed={collapsed}>
-              Patients
-            </SidebarItem>
-            <SidebarItem icon={<Calendar className="h-5 w-5" />} collapsed={collapsed}>
-              Appointments
-            </SidebarItem>
-            <SidebarItem icon={<MessageCircle className="h-5 w-5" />} collapsed={collapsed}>
-              Consultations
-            </SidebarItem>
-            <SidebarItem icon={<ClipboardList className="h-5 w-5" />} collapsed={collapsed}>
-              Prescriptions
-            </SidebarItem>
-            <SidebarItem icon={<Settings className="h-5 w-5" />} collapsed={collapsed}>
-              Settings
-            </SidebarItem>
-          </div>
-        </SidebarContent>
-        <SidebarFooter>
-          <Button 
-            variant="ghost" 
-            className="w-full justify-start"
-            onClick={() => setCollapsed(!collapsed)}
-          >
-            {collapsed ? "→" : "← Collapse"}
-          </Button>
-        </SidebarFooter>
-      </Sidebar>
+      <div className={`${isMobile ? 'hidden' : 'block'}`}>
+        <Sidebar collapsed={collapsed || isMobile}>
+          <SidebarHeader collapsed={collapsed}>
+            <div className="flex items-center">
+              <img 
+                src="https://via.placeholder.com/40x40" 
+                alt="Healthify Logo"
+                className="h-8 w-8 mr-2"
+              />
+              {!collapsed && <h1 className="text-xl font-bold text-health-primary">Healthify MD</h1>}
+            </div>
+          </SidebarHeader>
+          <SidebarContent>
+            <div className="space-y-2">
+              <SidebarItem active icon={<Activity className="h-5 w-5" />} collapsed={collapsed}>
+                Dashboard
+              </SidebarItem>
+              <SidebarItem icon={<Users className="h-5 w-5" />} collapsed={collapsed}>
+                Patients
+              </SidebarItem>
+              <SidebarItem icon={<Calendar className="h-5 w-5" />} collapsed={collapsed}>
+                Appointments
+              </SidebarItem>
+              <SidebarItem icon={<MessageCircle className="h-5 w-5" />} collapsed={collapsed}>
+                Consultations
+              </SidebarItem>
+              <SidebarItem icon={<ClipboardList className="h-5 w-5" />} collapsed={collapsed}>
+                Prescriptions
+              </SidebarItem>
+              <SidebarItem icon={<Settings className="h-5 w-5" />} collapsed={collapsed}>
+                Settings
+              </SidebarItem>
+            </div>
+          </SidebarContent>
+          <SidebarFooter>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-start"
+              onClick={() => setCollapsed(!collapsed)}
+            >
+              {collapsed ? "→" : "← Collapse"}
+            </Button>
+          </SidebarFooter>
+        </Sidebar>
+      </div>
 
-      <div className="flex-1 overflow-auto p-6">
-        <div className="flex justify-between items-center mb-8">
+      <div className="flex-1 overflow-auto p-3 md:p-6">
+        <div className="flex flex-wrap justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Hello, Dr. Johnson</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-gray-900">Hello, Dr. Johnson</h1>
             <p className="text-gray-600">Wednesday, April 22, 2025</p>
           </div>
-          <div className="flex items-center">
+          <div className="flex items-center mt-2 md:mt-0">
             <span className={`mr-2 ${isOnline ? 'text-green-600' : 'text-gray-400'}`}>
               {isOnline ? 'Online' : 'Offline'}
             </span>
@@ -71,10 +74,20 @@ export function DoctorPortal() {
             >
               <div className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300"></div>
             </button>
+            
+            {isMobile && (
+              <Button 
+                variant="ghost" 
+                className="ml-2"
+                onClick={() => setCollapsed(!collapsed)}
+              >
+                <Activity className="h-5 w-5" />
+              </Button>
+            )}
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6">
           <Card>
             <CardContent className="pt-6">
               <h3 className="text-lg font-semibold mb-1">Today's Appointments</h3>
@@ -105,7 +118,7 @@ export function DoctorPortal() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 md:gap-6 mb-6">
           <div className="lg:col-span-2">
             <Card>
               <CardHeader>
