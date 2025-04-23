@@ -1,6 +1,20 @@
-
 import React from "react";
-import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
+import {
+  Button,
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+  Sidebar,
+  SidebarHeader,
+  SidebarContent,
+  SidebarItem,
+  SidebarFooter,
+  Avatar,
+  Badge,
+} from "@/packages/ui-kit";
 import { BarChart, Settings, User, Users, FileText, Activity } from "lucide-react";
 
 export function AdminPortal() {

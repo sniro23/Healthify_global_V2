@@ -1,6 +1,4 @@
-
 import React from "react";
-import { Button, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
 import { 
   Activity, Calendar, Heart, MessageCircle, User, 
   HelpCircle, Settings, Bell, LogOut, Pill, TestTube 
@@ -29,11 +27,9 @@ export function PatientPortal() {
   const isMobile = useIsMobile();
   const { toast } = useToast();
 
-  // Get the current path segments
   const pathSegments = location.pathname.split('/');
   const activePath = pathSegments.length > 2 ? pathSegments[2] : "";
 
-  // Get subscription status - would come from API in a real app
   const [subscription] = React.useState({
     tier: "Category B",
     active: true
@@ -49,7 +45,6 @@ export function PatientPortal() {
 
   return (
     <div className="flex h-full bg-health-highlight md:bg-white">
-      {/* Desktop Sidebar - Hidden on Mobile */}
       <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <Sidebar collapsed={collapsed}>
           <SidebarHeader collapsed={collapsed}>
@@ -81,7 +76,6 @@ export function PatientPortal() {
           <SidebarContent>
             <div className="space-y-2">
               {sidebarItems.map((item) => {
-                // Determine if the sidebar item is active
                 const isActive =
                   (item.route === "" && (activePath === "" || activePath === undefined)) ||
                   (item.route !== "" && (activePath === item.route || location.pathname.includes(`/patient/${item.route}`)));
@@ -129,7 +123,6 @@ export function PatientPortal() {
           ${isMobile ? 'pb-20 px-2 pt-2' : 'p-3 md:p-6'}
         `}
       >
-        {/* Mobile header */}
         {isMobile && (
           <header className="flex items-center justify-between gap-2 mb-3 p-2 bg-white rounded-md shadow-sm">
             <div className="flex items-center">
@@ -155,7 +148,6 @@ export function PatientPortal() {
         </div>
       </div>
       
-      {/* Mobile Navigation - Visible only on mobile */}
       {isMobile && <MobileNavigation />}
     </div>
   );
