@@ -59,7 +59,7 @@ export function HealthRecords() {
           <Button variant="outline" size="sm" className="mr-2">
             Filter
           </Button>
-          <Button variant="health" size="sm">
+          <Button variant="default" size="sm" className="bg-health-primary hover:bg-health-primary/90 text-white">
             Request Records
           </Button>
         </div>

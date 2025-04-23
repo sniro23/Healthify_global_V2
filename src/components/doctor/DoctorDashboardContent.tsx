@@ -1,8 +1,8 @@
-
 import React from "react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, Badge } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MessageSquare, User, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
 

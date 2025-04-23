@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from "react";
@@ -9,7 +8,8 @@ import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter } fr
 import { Activity, Calendar, MessageSquare, User, Settings, LogOut, Bell, Users, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
 import MobileNavigation from "./MobileNavigation";
-import { Avatar, Badge } from "@/components/ui/avatar";
+import { Avatar } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 
 const sidebarItems = [
   { label: "Dashboard", icon: Activity, route: "" },
