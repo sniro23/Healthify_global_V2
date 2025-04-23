@@ -23,5 +23,8 @@ export default defineConfig({
         global: 'globalThis',
       },
     },
+  },
+  server: {
+    port: 8080
   }
 });

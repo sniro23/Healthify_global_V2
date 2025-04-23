@@ -12,6 +12,13 @@ import '../index.css';
 const queryClient = new QueryClient();
 
 export default function NextApp({ Component, pageProps }: AppProps) {
-  // We're actually not using Next.js routing, so we just render our main App component
-  return <App />;
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <App />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
 }
