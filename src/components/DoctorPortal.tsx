@@ -1,8 +1,10 @@
+
 import React from "react";
 import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
 import { Calendar, ClipboardList, MessageCircle, Settings, Users, Activity, Bell, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NotificationBell from "./doctor/NotificationBell";
+import NotificationScreen from "./doctor/NotificationScreen"; // Add this import
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
