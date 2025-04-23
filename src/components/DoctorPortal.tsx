@@ -4,17 +4,15 @@ import { Button, Card, CardContent, CardDescription, CardFooter, CardHeader, Car
 import { Calendar, ClipboardList, MessageCircle, Settings, Users, Activity, Bell, LogOut } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NotificationBell from "./doctor/NotificationBell";
-import NotificationScreen from "./doctor/NotificationScreen"; // Add this import
-import Image from 'next/image';
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import NotificationScreen from "./doctor/NotificationScreen";
+import { Link, useLocation } from "react-router-dom";
 import MobileNavigation from "./doctor/MobileNavigation";
 
 export function DoctorPortal() {
   const [collapsed, setCollapsed] = React.useState(false);
   const [isOnline, setIsOnline] = React.useState(true);
   const isMobile = useIsMobile();
-  const router = useRouter();
+  const location = useLocation();
   
   return (
     <div className="flex h-screen bg-gray-100">
@@ -22,53 +20,51 @@ export function DoctorPortal() {
         <Sidebar collapsed={collapsed || isMobile}>
           <SidebarHeader collapsed={collapsed}>
             <div className="flex items-center">
-              <Image 
+              <img 
                 src="/lovable-uploads/31616087-bfd6-4911-96a7-6815ec19ce8d.png"
                 alt="Healthify Logo"
                 className="h-8 w-8 mr-2"
-                width={32}
-                height={32}
               />
               {!collapsed && <h1 className="text-xl font-bold text-health-primary">Healthify MD</h1>}
             </div>
           </SidebarHeader>
           <SidebarContent>
             <div className="space-y-2">
-              <Link href="/doctor">
-                <SidebarItem active={router.pathname === '/doctor'} icon={<Activity className="h-5 w-5" />} collapsed={collapsed}>
+              <Link to="/doctor">
+                <SidebarItem active={location.pathname === '/doctor'} icon={<Activity className="h-5 w-5" />} collapsed={collapsed}>
                   Dashboard
                 </SidebarItem>
               </Link>
-              <Link href="/doctor/patients">
+              <Link to="/doctor/patients">
                 <SidebarItem icon={<Users className="h-5 w-5" />} collapsed={collapsed}>
                   Patients
                 </SidebarItem>
               </Link>
-              <Link href="/doctor/appointments">
+              <Link to="/doctor/appointments">
                 <SidebarItem icon={<Calendar className="h-5 w-5" />} collapsed={collapsed}>
                   Appointments
                 </SidebarItem>
               </Link>
-              <Link href="/doctor/consultations">
+              <Link to="/doctor/consultations">
                 <SidebarItem icon={<MessageCircle className="h-5 w-5" />} collapsed={collapsed}>
                   Consultations
                 </SidebarItem>
               </Link>
-              <Link href="/doctor/prescriptions">
+              <Link to="/doctor/prescriptions">
                 <SidebarItem icon={<ClipboardList className="h-5 w-5" />} collapsed={collapsed}>
                   Prescriptions
                 </SidebarItem>
               </Link>
-              <Link href="/doctor/notifications">
+              <Link to="/doctor/notifications">
                 <SidebarItem 
                   icon={<Bell className="h-5 w-5" />} 
                   collapsed={collapsed}
-                  active={router.pathname === '/doctor/notifications'}
+                  active={location.pathname === '/doctor/notifications'}
                 >
                   Notifications
                 </SidebarItem>
               </Link>
-              <Link href="/doctor/settings">
+              <Link to="/doctor/settings">
                 <SidebarItem icon={<Settings className="h-5 w-5" />} collapsed={collapsed}>
                   Settings
                 </SidebarItem>
@@ -76,7 +72,7 @@ export function DoctorPortal() {
             </div>
           </SidebarContent>
           <SidebarFooter>
-            <Link href="/" style={{ textDecoration: "none", width: "100%" }}>
+            <Link to="/" style={{ textDecoration: "none", width: "100%" }}>
               <SidebarItem
                 icon={<LogOut className="h-5 w-5" />}
                 collapsed={collapsed}
@@ -100,22 +96,20 @@ export function DoctorPortal() {
           <div className="flex justify-between items-center p-4">
             <div className="flex items-center">
               {isMobile && (
-                <Image 
+                <img 
                   src="/lovable-uploads/31616087-bfd6-4911-96a7-6815ec19ce8d.png"
                   alt="Healthify Logo"
                   className="h-8 w-8 mr-2"
-                  width={32}
-                  height={32}
                 />
               )}
               <h2 className="text-xl font-semibold text-gray-900">
-                {router.pathname === '/doctor' && 'Dashboard'}
-                {router.pathname === '/doctor/patients' && 'Patients'}
-                {router.pathname === '/doctor/appointments' && 'Appointments'}
-                {router.pathname === '/doctor/consultations' && 'Consultations'}
-                {router.pathname === '/doctor/prescriptions' && 'Prescriptions'}
-                {router.pathname === '/doctor/notifications' && 'Notifications'}
-                {router.pathname === '/doctor/settings' && 'Settings'}
+                {location.pathname === '/doctor' && 'Dashboard'}
+                {location.pathname === '/doctor/patients' && 'Patients'}
+                {location.pathname === '/doctor/appointments' && 'Appointments'}
+                {location.pathname === '/doctor/consultations' && 'Consultations'}
+                {location.pathname === '/doctor/prescriptions' && 'Prescriptions'}
+                {location.pathname === '/doctor/notifications' && 'Notifications'}
+                {location.pathname === '/doctor/settings' && 'Settings'}
               </h2>
             </div>
             
@@ -138,7 +132,7 @@ export function DoctorPortal() {
               
               <Avatar 
                 className="ml-2 cursor-pointer"
-                onClick={() => router.push('/doctor/profile')}
+                onClick={() => window.location.href = '/doctor/profile'}
               >
                 <span>DR</span>
               </Avatar>
@@ -146,7 +140,7 @@ export function DoctorPortal() {
           </div>
         </div>
 
-        {router.pathname === '/doctor' && (
+        {location.pathname === '/doctor' && (
           <div className="p-3 md:p-6">
             <div className="flex flex-wrap justify-between items-center mb-8">
               <div>
@@ -285,7 +279,7 @@ export function DoctorPortal() {
           </div>
         )}
 
-        {router.pathname === '/doctor/notifications' && (
+        {location.pathname === '/doctor/notifications' && (
           <NotificationScreen />
         )}
       </div>

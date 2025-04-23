@@ -1,8 +1,9 @@
+
 import React, { useState } from 'react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { NotificationType } from '@/types/notification';
 import { Button, Card, Badge } from '@/packages/ui-kit';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 import { format, formatDistanceToNow } from 'date-fns';
 import { 
   Bell, 
@@ -20,12 +21,12 @@ export const NotificationScreen: React.FC = () => {
     filterNotifications 
   } = useNotifications();
   const [activeFilter, setActiveFilter] = useState<NotificationType | 'All'>('All');
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleNotificationClick = (id: string, actionUrl?: string) => {
     markAsRead(id);
     if (actionUrl) {
-      router.push(actionUrl);
+      navigate(actionUrl);
     }
   };
 

@@ -4,14 +4,14 @@ import { Bell } from 'lucide-react';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { Button } from '@/packages/ui-kit';
 import { Badge } from '@/packages/ui-kit';
-import { useRouter } from 'next/router';
+import { useNavigate } from 'react-router-dom';
 
 export const NotificationBell: React.FC = () => {
   const { unreadCount } = useNotifications();
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleClick = () => {
-    router.push('/doctor/notifications');
+    navigate('/doctor/notifications');
   };
 
   return (
