@@ -11,7 +11,8 @@ import '../index.css';
 // Create a client
 const queryClient = new QueryClient();
 
-export default function NextApp({ Component, pageProps }: AppProps) {
+// Define a proper functional component that wraps the App
+function NextApp({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -22,3 +23,5 @@ export default function NextApp({ Component, pageProps }: AppProps) {
     </QueryClientProvider>
   );
 }
+
+export default NextApp;

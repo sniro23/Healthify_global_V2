@@ -4,7 +4,8 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button, Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/components/ui";
+import { Button } from "@/components/ui";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
 import { Activity, Calendar, MessageCircle, User, Settings, LogOut } from "lucide-react";
 import { Link } from "react-router-dom";
 import MobileNavigation from "./MobileNavigation";

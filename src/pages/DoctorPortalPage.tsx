@@ -1,8 +1,9 @@
 
 import React from "react";
-import { DoctorPortal } from "@/components/DoctorPortal";
+import { DoctorPortal } from "@/components/doctor/DoctorPortal";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui";
+import { Outlet } from "react-router-dom";
 
 const DoctorPortalPage = () => {
   return (
