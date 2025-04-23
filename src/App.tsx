@@ -22,7 +22,14 @@ import VisitSummary from "./components/patient/VisitSummary";
 import HelpCenter from "./components/patient/HelpCenter";
 import ContactSupport from "./components/patient/ContactSupport";
 import PaymentSettings from "./components/patient/PaymentSettings";
+
+// Doctor Portal Components
+import DoctorDashboardContent from "./components/doctor/DoctorDashboardContent";
 import NotificationScreen from "./components/doctor/NotificationScreen";
+import DoctorAppointments from "./components/doctor/DoctorAppointments";
+import PatientsList from "./components/doctor/PatientsList";
+import DoctorMessages from "./components/doctor/Messages";
+import DoctorPrescriptions from "./components/doctor/Prescriptions";
 
 const App = () => (
   <NotificationProvider>
@@ -46,7 +53,13 @@ const App = () => (
           <Route path="payment-settings" element={<PaymentSettings />} />
         </Route>
         <Route path="/doctor" element={<DoctorPortalPage />}>
+          <Route index element={<DoctorDashboardContent />} />
           <Route path="notifications" element={<NotificationScreen />} />
+          <Route path="appointments" element={<DoctorAppointments />} />
+          <Route path="patients" element={<PatientsList />} />
+          <Route path="messages" element={<DoctorMessages />} />
+          <Route path="prescriptions" element={<DoctorPrescriptions />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
         <Route path="/admin" element={<AdminPortalPage />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

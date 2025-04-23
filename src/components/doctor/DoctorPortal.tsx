@@ -4,18 +4,21 @@
 import React from "react";
 import { Outlet, useLocation } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Button } from "@/components/ui";
-import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter, Avatar, Badge } from "@/packages/ui-kit";
-import { Activity, Calendar, MessageCircle, User, Settings, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Sidebar, SidebarHeader, SidebarContent, SidebarItem, SidebarFooter } from "@/packages/ui-kit";
+import { Activity, Calendar, MessageSquare, User, Settings, LogOut, Bell, Users, ClipboardList } from "lucide-react";
 import { Link } from "react-router-dom";
 import MobileNavigation from "./MobileNavigation";
+import { Avatar, Badge } from "@/components/ui/avatar";
 
 const sidebarItems = [
   { label: "Dashboard", icon: Activity, route: "" },
   { label: "Appointments", icon: Calendar, route: "appointments" },
-  { label: "Messages", icon: MessageCircle, route: "messages" },
+  { label: "Patients", icon: Users, route: "patients" },
+  { label: "Messages", icon: MessageSquare, route: "messages" },
+  { label: "Prescriptions", icon: ClipboardList, route: "prescriptions" },
   { label: "Profile", icon: User, route: "profile" },
-  { label: "Settings", icon: Settings, route: "settings" },
+  { label: "Settings", icon: Settings, route: "settings" }
 ];
 
 export function DoctorPortal() {
@@ -28,7 +31,7 @@ export function DoctorPortal() {
   const activePath = pathSegments.length > 2 ? pathSegments[2] : "";
 
   return (
-    <div className="flex h-full bg-health-highlight md:bg-white">
+    <div className="flex h-full bg-gray-50 md:bg-white">
       <div className={`${isMobile ? 'hidden' : 'block'}`}>
         <Sidebar collapsed={collapsed}>
           <SidebarHeader collapsed={collapsed}>
@@ -78,6 +81,19 @@ export function DoctorPortal() {
                   </Link>
                 );
               })}
+              
+              <Link
+                to="/doctor/notifications"
+                style={{ textDecoration: "none" }}
+              >
+                <SidebarItem
+                  active={activePath === "notifications"}
+                  icon={<Bell className="h-5 w-5" />}
+                  collapsed={collapsed}
+                >
+                  Notifications
+                </SidebarItem>
+              </Link>
             </div>
           </SidebarContent>
           <SidebarFooter>
@@ -102,7 +118,7 @@ export function DoctorPortal() {
 
       <div
         className={`flex-1 overflow-auto bg-white flex flex-col
-          ${isMobile ? 'pb-20 px-2 pt-2' : 'p-3 md:p-6'}
+          ${isMobile ? 'pb-20 px-2 pt-2' : 'p-3 md:p-0'}
         `}
       >
         {isMobile && (

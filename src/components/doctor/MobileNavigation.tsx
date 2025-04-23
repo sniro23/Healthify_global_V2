@@ -1,14 +1,14 @@
 
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Activity, Calendar, MessageCircle, User } from "lucide-react";
+import { Activity, Calendar, MessageSquare, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { icon: Activity, label: "Dashboard", path: "/doctor" },
+  { icon: Users, label: "Patients", path: "/doctor/patients" },
   { icon: Calendar, label: "Appointments", path: "/doctor/appointments" },
-  { icon: MessageCircle, label: "Messages", path: "/doctor/messages" },
-  { icon: User, label: "Profile", path: "/doctor/profile" },
+  { icon: MessageSquare, label: "Messages", path: "/doctor/messages" },
 ];
 
 const MobileNavigation = () => {
