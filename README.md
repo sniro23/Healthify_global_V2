@@ -1,73 +1,109 @@
-# Welcome to your Lovable project
+# Healthify Global Healthcare Platform
 
-## Project info
+A comprehensive healthcare platform consisting of patient, doctor, and admin portals built on a unified FHIR-compliant backend.
 
-**URL**: https://lovable.dev/projects/03f07ea8-c004-4e73-90f7-6a917872e4e8
+## Project Structure
 
-## How can I edit this code?
+This is a monorepo containing multiple applications and shared packages:
 
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/03f07ea8-c004-4e73-90f7-6a917872e4e8) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
+```
+healthify-digital-hub/
+├── apps/
+│   ├── patient-portal/    # Patient-facing web app
+│   ├── doctor-portal/     # Doctor-facing web app
+│   └── admin-portal/      # Admin dashboard
+├── packages/
+│   ├── ui-kit/            # Shared UI components
+│   ├── fhir-server/       # FHIR API implementation
+│   ├── db/                # Database access layer
+│   └── auth/              # Authentication utilities
+└── supabase/              # Supabase migrations and schema
 ```
 
-**Edit a file directly in GitHub**
+## Getting Started
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### Prerequisites
 
-**Use GitHub Codespaces**
+- Node.js 18+
+- Yarn package manager
+- Supabase CLI (for local development with the database)
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+### Installation
 
-## What technologies are used for this project?
+1. Clone the repository:
+   ```
+   git clone https://github.com/sniro23/Healthify_global_V2.git
+   cd Healthify_Global_Rebuild/healthify-digital-hub
+   ```
 
-This project is built with:
+2. Install dependencies:
+   ```
+   yarn install
+   ```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+3. Create a `.env.local` file in the root with the following variables:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=your-supabase-url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+   SUPABASE_PROJECT_ID=your-project-id
+   ```
 
-## How can I deploy this project?
+4. Start the development server:
+   ```
+   yarn dev
+   ```
 
-Simply open [Lovable](https://lovable.dev/projects/03f07ea8-c004-4e73-90f7-6a917872e4e8) and click on Share -> Publish.
+### Running Individual Applications
 
-## Can I connect a custom domain to my Lovable project?
+To run a specific application:
 
-Yes, you can!
+```
+yarn workspace @healthify/patient-portal dev
+yarn workspace @healthify/doctor-portal dev
+yarn workspace @healthify/admin-portal dev
+```
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## Development Guidelines
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+### Preferred Technologies
+
+- **Framework**: Next.js for all portals
+- **State Management**: React Context API + React Query
+- **Styling**: Tailwind CSS + UI Kit components
+- **API**: FHIR R4 standard with REST endpoints
+- **Database**: Supabase (Postgres) with Row-Level Security
+
+### Code Structure
+
+- Components should follow a feature-first organization
+- Shared components go in the UI Kit package
+- Business logic should be separated from UI components
+- FHIR resources should be implemented according to the FHIR R4 standard
+
+## Database Migrations
+
+To start Supabase locally and apply migrations:
+
+```
+yarn supabase:start
+yarn supabase:migrate
+```
+
+## Security
+
+- All database access is protected by Row-Level Security policies
+- Authentication is handled by Supabase Auth
+- PHI (Protected Health Information) is encrypted at rest
+- All actions are audit-logged for compliance
+
+## Testing
+
+Run tests across all workspaces:
+
+```
+yarn test
+```
+
+## Deployment
+
+The application is automatically deployed to Vercel through GitHub Actions when changes are pushed to the main branch.

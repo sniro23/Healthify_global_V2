@@ -151,4 +151,16 @@ CREATE INDEX IF NOT EXISTS idx_prescriptions_patient_id ON prescriptions(patient
 CREATE INDEX IF NOT EXISTS idx_messages_conversation_id ON messages(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_messages_sender_id ON messages(sender_id);
 CREATE INDEX IF NOT EXISTS idx_messages_recipient_id ON messages(recipient_id);
-CREATE INDEX IF NOT EXISTS idx_patient_vitals_patient_id ON patient_vitals(patient_id); 
+CREATE INDEX IF NOT EXISTS idx_patient_vitals_patient_id ON patient_vitals(patient_id);
+
+-- Enable Row Level Security on all tables
+ALTER TABLE patients ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doctors ENABLE ROW LEVEL SECURITY;
+ALTER TABLE doctor_patient_relationships ENABLE ROW LEVEL SECURITY;
+ALTER TABLE appointments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE health_records ENABLE ROW LEVEL SECURITY;
+ALTER TABLE lab_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE prescriptions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE patient_vitals ENABLE ROW LEVEL SECURITY; 

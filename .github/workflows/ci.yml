@@ -28,5 +28,17 @@ jobs:
       - name: Test
         run: yarn test
 
-      - name: Build
-        run: yarn build 
+      - name: Build packages
+        run: |
+          yarn workspace @healthify/ui-kit build
+          yarn workspace @healthify/fhir-server build
+          yarn workspace @healthify/db build
+      
+      - name: Build patient portal
+        run: yarn workspace @healthify/patient-portal build
+      
+      - name: Build doctor portal
+        run: yarn workspace @healthify/doctor-portal build
+      
+      - name: Build admin portal
+        run: yarn workspace @healthify/admin-portal build 
