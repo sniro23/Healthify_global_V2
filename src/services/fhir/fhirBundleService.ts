@@ -1,4 +1,5 @@
-import { FHIRBundle } from '@/models/fhir/common';
+
+import { FHIRBundle, FHIRResource } from '@/models/fhir/common';
 import { fhirService } from './supabaseFhirService';
 import { ExtendedPatient } from '@/models/fhir/extendedPatient';
 import { FHIRObservation } from '@/models/fhir/observation';

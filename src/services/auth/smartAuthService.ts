@@ -1,7 +1,8 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { fhirclient } from 'fhirclient/lib/lib';
-import { Client } from 'fhirclient';
+import Client from 'fhirclient/lib/Client';
+import FHIR from 'fhirclient';
 
 const clientId = 'healthify-portal';
 const redirectUri = 'http://localhost:5173';
@@ -84,7 +85,7 @@ export function useSMARTAuth() {
     if (code && state) {
       handleAuthorizationResponse(code, state);
     }
-  }, [searchParams, navigate]);
+  }, [searchParams]);
   
   const handleAuthorizationResponse = async (code: string, state: string) => {
     setIsLoading(true);
@@ -92,38 +93,23 @@ export function useSMARTAuth() {
     
     try {
       // Exchange the authorization code for an access token
-      const tokenResponse = await fhirclient(
-        {
-          clientId,
-          scope: scopes.join(' '),
-          redirectUri,
-        }
-      ).auth.token({ code, state });
+      const tokenResponse = await FHIR.oauth2.authorize({
+        clientId,
+        scope: scopes.join(' '),
+        redirectUri,
+        completeInTarget: true,
+        iss: searchParams.get('iss') || undefined
+      });
+      
+      if (!tokenResponse || !tokenResponse.access_token) {
+        throw new Error('Failed to retrieve access token');
+      }
       
       const accessToken = tokenResponse.access_token;
-      const refreshToken = tokenResponse.refresh_token;
-      const expiresIn = tokenResponse.expires_in;
-      const subject = tokenResponse.patient;
-      
-      if (!accessToken || !refreshToken || !expiresIn || !subject) {
-        throw new Error('Failed to retrieve tokens or subject from token response');
-      }
-      
-      // Fetch the patient ID
-      const client = await fhirclient(
-        {
-          clientId,
-          scope: scopes.join(' '),
-          redirectUri,
-        }
-      ).client();
-      
-      const patient = await client.request(`Patient/${subject}`);
-      const patientId = patient.id;
-      
-      if (!patientId) {
-        throw new Error('Failed to retrieve patient ID');
-      }
+      const refreshToken = tokenResponse.refresh_token || '';
+      const expiresIn = tokenResponse.expires_in || 3600;
+      const subject = tokenResponse.patient || '';
+      const patientId = tokenResponse.patient || null;
       
       // Set the session
       smartClient.setAuthContext(
@@ -145,9 +131,10 @@ export function useSMARTAuth() {
       });
       
       // Remove the code and state from the URL
-      searchParams.delete('code');
-      searchParams.delete('state');
-      navigate({ search: searchParams.toString() }, { replace: true });
+      const cleanParams = new URLSearchParams(searchParams);
+      cleanParams.delete('code');
+      cleanParams.delete('state');
+      navigate({ search: cleanParams.toString() }, { replace: true });
     } catch (e: any) {
       console.error('Failed to complete authorization flow', e);
       setError(e.message || 'Failed to complete authorization flow');
@@ -161,16 +148,15 @@ export function useSMARTAuth() {
     setError(null);
     
     try {
-      fhirclient(
-        {
-          clientId,
-          scope: scopes.join(' '),
-          redirectUri,
-        }
-      ).auth.authorize({
+      FHIR.oauth2.authorize({
         clientId,
         scope: scopes.join(' '),
         redirectUri,
+        completeInTarget: true
+      }).catch(err => {
+        console.error('Authorization error:', err);
+        setError(err.message || 'Failed to initiate authorization flow');
+        setIsLoading(false);
       });
     } catch (e: any) {
       console.error('Failed to initiate authorization flow', e);
@@ -254,5 +240,7 @@ export function useSMARTAuth() {
     getAccessToken,
     hasScope,
     refreshTokens,
+    isLoading,
+    error
   };
 }

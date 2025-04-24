@@ -1,106 +1,58 @@
 
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { smartClient } from '@/services/auth/smartAuthService';
-import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useSMARTAuth } from '@/services/auth/smartAuthService';
 import { Spinner } from '@/components/ui/spinner';
 
 const SMARTCallback = () => {
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const { isAuthorized } = useSMARTAuth();
   const [error, setError] = useState<string | null>(null);
-  const [isProcessing, setIsProcessing] = useState(true);
-
+  
   useEffect(() => {
-    const processCallback = async () => {
-      try {
-        // Process the authorization response
-        const queryParams = new URLSearchParams(window.location.search);
-        
-        // Check for error parameter
-        const errorParam = queryParams.get('error');
-        if (errorParam) {
-          const errorDescription = queryParams.get('error_description') || 'Unknown error';
-          throw new Error(`Authentication error: ${errorParam}. ${errorDescription}`);
-        }
-        
-        // Handle the authorization callback
-        await smartClient.handleCallback(queryParams);
-        
-        // Show success message
-        toast({
-          title: "Authentication Successful",
-          description: "You have been successfully authenticated with SMART on FHIR."
-        });
-        
-        // Navigate back to the application
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
-      } catch (err) {
-        console.error('SMART authentication error:', err);
-        setError(err instanceof Error ? err.message : 'Authentication failed');
-        
-        toast({
-          title: "Authentication Failed",
-          description: err instanceof Error ? err.message : 'An error occurred during authentication',
-          variant: "destructive"
-        });
-      } finally {
-        setIsProcessing(false);
+    // The authorization code and state should be processed
+    // directly in the useSMARTAuth hook, but we can handle UI here
+    
+    // Check if we're already authorized after the hook has processed the params
+    const checkAuth = setTimeout(() => {
+      if (isAuthorized()) {
+        navigate('/doctor/dashboard');
+      } else {
+        // If we're not authorized after a reasonable time,
+        // there might have been an error
+        const errorMsg = searchParams.get('error') || 'Authorization failed';
+        setError(errorMsg);
       }
-    };
-
-    processCallback();
-  }, [navigate, toast]);
-
-  const handleReturnHome = () => {
-    navigate('/');
-  };
-
+    }, 3000); // Give the auth process some time
+    
+    return () => clearTimeout(checkAuth);
+  }, [isAuthorized, navigate, searchParams]);
+  
+  if (error) {
+    return (
+      <div className="h-screen flex flex-col items-center justify-center">
+        <div className="p-6 max-w-md mx-auto bg-white rounded-xl shadow-md">
+          <h2 className="text-xl font-bold text-red-600">Authentication Error</h2>
+          <p className="mt-2 text-gray-600">{error}</p>
+          <button 
+            onClick={() => navigate('/')}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Return to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+  
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <Card className="w-[400px]">
-        <CardHeader>
-          <CardTitle className="text-xl">SMART on FHIR Authentication</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isProcessing ? (
-            <div className="py-6 text-center">
-              <Spinner className="mx-auto mb-4" size="lg" />
-              <p>Processing authentication response...</p>
-            </div>
-          ) : error ? (
-            <div className="py-6 space-y-4">
-              <div className="bg-red-50 p-4 rounded-md border border-red-200">
-                <h3 className="text-red-800 font-medium">Authentication Error</h3>
-                <p className="text-red-700 mt-1">{error}</p>
-              </div>
-              <Button 
-                onClick={handleReturnHome}
-                className="w-full"
-              >
-                Return to Home
-              </Button>
-            </div>
-          ) : (
-            <div className="py-6 space-y-4 text-center">
-              <div className="bg-green-50 p-4 rounded-md border border-green-200">
-                <h3 className="text-green-800 font-medium">Authentication Successful</h3>
-                <p className="text-green-700 mt-1">You will be redirected shortly...</p>
-              </div>
-              <Button 
-                onClick={handleReturnHome}
-                className="w-full"
-              >
-                Return to Application
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+    <div className="h-screen flex flex-col items-center justify-center">
+      <div className="text-center">
+        <Spinner size="lg" className="mb-4" />
+        <p className="text-lg font-medium text-gray-700">Processing SMART authorization...</p>
+        <p className="text-sm text-gray-500 mt-2">Please wait while we complete the authentication.</p>
+      </div>
     </div>
   );
 };

@@ -1,6 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { AuditLogType } from '@/models/fhir/auditEvent';
+import { Json } from '@/integrations/supabase/types';
 
 export abstract class BaseFHIRService {
   protected async logAudit(
@@ -32,20 +33,20 @@ export abstract class BaseFHIRService {
 
   protected async hasPermission(userId: string, resourceType: string, permission: string): Promise<boolean> {
     try {
+      // Use custom query since user_permissions table might not be in Supabase schema yet
       const { data, error } = await supabase
         .from('user_permissions')
         .select('*')
         .eq('user_id', userId)
         .eq('resource_type', resourceType)
-        .eq('permission', permission)
-        .maybeSingle();
+        .eq('permission', permission);
       
       if (error) {
         console.error('Error checking permission:', error);
         return false;
       }
       
-      return !!data;
+      return data && data.length > 0;
     } catch (error) {
       console.error('Error in hasPermission:', error);
       return false;

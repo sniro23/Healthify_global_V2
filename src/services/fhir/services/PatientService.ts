@@ -58,7 +58,14 @@ export class PatientService extends BaseFHIRService {
       
       this.logAudit('system', AuditActionType.READ, 'Patient', fhirId);
       
-      return data.fhir_resource as ExtendedPatient;
+      // Cast the data to ExtendedPatient with proper type safety
+      const patientResource = data.fhir_resource as unknown;
+      if (typeof patientResource === 'object' && patientResource !== null &&
+          'resourceType' in patientResource && patientResource.resourceType === 'Patient') {
+        return patientResource as ExtendedPatient;
+      }
+      
+      return null;
     } catch (error) {
       console.error('Error in getPatientByFhirId:', error);
       throw error;

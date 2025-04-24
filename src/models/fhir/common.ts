@@ -1,4 +1,5 @@
 
+
 /**
  * Common FHIR data models and types for interoperability
  */
@@ -89,6 +90,42 @@ export interface FHIRExtension {
 }
 
 /**
+ * FHIR Bundle interface
+ */
+export interface FHIRBundle extends FHIRResource {
+  resourceType: 'Bundle';
+  type: 'transaction' | 'batch' | 'transaction-response' | 'batch-response' | 'history' | 'searchset' | 'collection';
+  total?: number;
+  link?: Array<{
+    relation: string;
+    url: string;
+  }>;
+  entry?: Array<{
+    fullUrl?: string;
+    resource?: FHIRResource;
+    search?: {
+      mode?: 'match' | 'include' | 'outcome';
+      score?: number;
+    };
+    request?: {
+      method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+      url: string;
+      ifNoneMatch?: string;
+      ifModifiedSince?: string;
+      ifMatch?: string;
+      ifNoneExist?: string;
+    };
+    response?: {
+      status: string;
+      location?: string;
+      etag?: string;
+      lastModified?: string;
+      outcome?: FHIRResource;
+    };
+  }>;
+}
+
+/**
  * Standard Code Systems in FHIR
  */
 export const FHIR_CODE_SYSTEMS = {
@@ -159,3 +196,4 @@ export const createRxNormCoding = (code: string, display: string): FHIRCoding =>
     display
   };
 };
+

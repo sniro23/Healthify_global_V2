@@ -1,4 +1,5 @@
 
+
 import { FHIRResource } from './common';
 
 /**
@@ -134,6 +135,22 @@ export enum AuditActionType {
 }
 
 /**
+ * Audit log type for internal use
+ */
+export type AuditLogType = 
+  | 'create'
+  | 'read'
+  | 'update'
+  | 'delete'
+  | 'execute'
+  | 'search'
+  | 'access'
+  | 'login'
+  | 'logout'
+  | 'import'
+  | 'export';
+
+/**
  * Audit outcome code enum
  */
 export enum AuditOutcomeCode {
@@ -255,3 +272,4 @@ function getSubtypeDisplayFromAction(action: AuditActionType): string {
       return 'Search';
   }
 }
+
