@@ -1,3 +1,4 @@
+
 import { 
   FHIRMedicationRequest, 
   MedicationRequestWithContext,
@@ -81,9 +82,21 @@ const convertToFHIRMedicationRequest = (prescription: Prescription): FHIRMedicat
 };
 
 /**
- * Fetch all medication requests as FHIR resources
+ * Fetch all medication requests as FHIR resources with support for FHIR search parameters
+ * 
+ * @param params Optional search parameters following FHIR search parameter patterns
+ * @returns Promise with filtered medication requests
  */
-export const fetchFHIRMedicationRequests = async (): Promise<MedicationRequestWithContext[]> => {
+export const fetchFHIRMedicationRequests = async (
+  params?: {
+    status?: string,
+    "medication-type"?: string,
+    patient?: string,
+    "authored-on-gt"?: string, // Greater than date
+    _include?: string[], // Related resources to include
+    _count?: number // Maximum number of results
+  }
+): Promise<MedicationRequestWithContext[]> => {
   // Combine all prescriptions
   const allPrescriptions = [
     ...activePrescriptions,
@@ -94,7 +107,8 @@ export const fetchFHIRMedicationRequests = async (): Promise<MedicationRequestWi
   // Simulate API call with a delay
   return new Promise((resolve) => {
     setTimeout(() => {
-      const medicationRequests = allPrescriptions.map(prescription => {
+      // Convert to FHIR resources
+      let medicationRequests = allPrescriptions.map(prescription => {
         const fhirMedicationRequest = convertToFHIRMedicationRequest(prescription);
         
         return {
@@ -110,7 +124,195 @@ export const fetchFHIRMedicationRequests = async (): Promise<MedicationRequestWi
         };
       });
       
+      // Apply FHIR search parameters if provided
+      if (params) {
+        // Filter by status
+        if (params.status) {
+          const statuses = params.status.split(',');
+          medicationRequests = medicationRequests.filter(item => 
+            statuses.includes(item.medicationRequest.status)
+          );
+        }
+        
+        // Filter by medication type (custom extension)
+        if (params["medication-type"]) {
+          const types = params["medication-type"].split(',');
+          medicationRequests = medicationRequests.filter(item => {
+            const typeExt = item.medicationRequest.extension?.find(
+              ext => ext.url === "http://healthify.org/fhir/StructureDefinition/prescription-type"
+            );
+            const type = typeExt?.valueCode || "medication";
+            return types.includes(type);
+          });
+        }
+        
+        // Filter by patient
+        if (params.patient) {
+          const patientIds = params.patient.split(',');
+          medicationRequests = medicationRequests.filter(item =>
+            patientIds.some(id => item.medicationRequest.subject.reference.includes(id))
+          );
+        }
+        
+        // Filter by authored date (greater than)
+        if (params["authored-on-gt"]) {
+          const compareDate = new Date(params["authored-on-gt"]);
+          medicationRequests = medicationRequests.filter(item => {
+            if (!item.medicationRequest.authoredOn) return false;
+            return new Date(item.medicationRequest.authoredOn) > compareDate;
+          });
+        }
+        
+        // Apply count limit
+        if (params._count && params._count > 0) {
+          medicationRequests = medicationRequests.slice(0, params._count);
+        }
+      }
+      
       resolve(medicationRequests);
+    }, 500);
+  });
+};
+
+/**
+ * Create a new FHIR MedicationRequest
+ * 
+ * @param medicationRequest The MedicationRequest to create
+ * @returns Promise with the created MedicationRequest
+ */
+export const createFHIRMedicationRequest = async (
+  medicationRequest: Omit<FHIRMedicationRequest, 'id' | 'meta'>
+): Promise<FHIRMedicationRequest> => {
+  // Simulate API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      const now = new Date().toISOString();
+      const id = generateFhirUuid().split(':')[2]; // Extract UUID part
+      
+      const createdResource: FHIRMedicationRequest = {
+        ...medicationRequest,
+        id,
+        meta: {
+          versionId: "1",
+          lastUpdated: now,
+          profile: ["http://healthify.org/fhir/StructureDefinition/medication-request"]
+        }
+      };
+      
+      resolve(createdResource);
+    }, 500);
+  });
+};
+
+/**
+ * Update an existing FHIR MedicationRequest
+ * 
+ * @param id The ID of the MedicationRequest to update
+ * @param medicationRequest The updated MedicationRequest data
+ * @returns Promise with the updated MedicationRequest
+ */
+export const updateFHIRMedicationRequest = async (
+  id: string,
+  medicationRequest: Partial<FHIRMedicationRequest>
+): Promise<FHIRMedicationRequest> => {
+  // Simulate API call
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // Find the resource in our mock data
+      const allPrescriptions = [
+        ...activePrescriptions,
+        ...pendingPrescriptions,
+        ...expiredPrescriptions
+      ];
+      
+      const prescription = allPrescriptions.find(p => p.id === id);
+      
+      if (!prescription) {
+        reject(new Error(`MedicationRequest with ID ${id} not found`));
+        return;
+      }
+      
+      // Convert to FHIR, apply updates, and increment version
+      const existingResource = convertToFHIRMedicationRequest(prescription);
+      const updatedResource = {
+        ...existingResource,
+        ...medicationRequest,
+        meta: {
+          ...existingResource.meta,
+          versionId: String(Number(existingResource.meta?.versionId || "0") + 1),
+          lastUpdated: new Date().toISOString()
+        }
+      };
+      
+      resolve(updatedResource);
+    }, 500);
+  });
+};
+
+/**
+ * Delete a FHIR MedicationRequest
+ * 
+ * @param id The ID of the MedicationRequest to delete
+ * @returns Promise that resolves when deletion is complete
+ */
+export const deleteFHIRMedicationRequest = async (id: string): Promise<void> => {
+  // Simulate API call
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      // In a real implementation, this would call the FHIR server
+      // For now, we'll just simulate success
+      resolve();
+    }, 500);
+  });
+};
+
+/**
+ * Validate a FHIR MedicationRequest against profiles
+ * 
+ * @param medicationRequest The MedicationRequest to validate
+ * @returns Promise with validation results
+ */
+export const validateFHIRMedicationRequest = async (
+  medicationRequest: FHIRMedicationRequest
+): Promise<{isValid: boolean, issues?: Array<{severity: string, message: string}>}> => {
+  // Simulate API call
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      // Basic validation logic - in real implementation this would validate against FHIR profiles
+      const issues = [];
+      
+      if (!medicationRequest.status) {
+        issues.push({
+          severity: "error",
+          message: "MedicationRequest must have a status"
+        });
+      }
+      
+      if (!medicationRequest.intent) {
+        issues.push({
+          severity: "error",
+          message: "MedicationRequest must have an intent"
+        });
+      }
+      
+      if (!medicationRequest.subject) {
+        issues.push({
+          severity: "error",
+          message: "MedicationRequest must have a subject"
+        });
+      }
+      
+      if (!medicationRequest.medicationCodeableConcept && !medicationRequest.medicationReference) {
+        issues.push({
+          severity: "error",
+          message: "MedicationRequest must have either medicationCodeableConcept or medicationReference"
+        });
+      }
+      
+      resolve({
+        isValid: issues.length === 0,
+        issues: issues.length > 0 ? issues : undefined
+      });
     }, 500);
   });
 };
@@ -123,13 +325,15 @@ export const getMedicationRequestStatusDisplay = (status: string): { label: stri
     case "active":
       return { label: "Active", color: "bg-green-100 text-green-800" };
     case "on-hold":
-      return { label: "Pending", color: "bg-yellow-100 text-yellow-800" };
+      return { label: "On Hold", color: "bg-yellow-100 text-yellow-800" };
     case "completed":
       return { label: "Completed", color: "bg-blue-100 text-blue-800" };
     case "cancelled":
       return { label: "Cancelled", color: "bg-red-100 text-red-800" };
     case "stopped":
       return { label: "Stopped", color: "bg-purple-100 text-purple-800" };
+    case "entered-in-error":
+      return { label: "Error", color: "bg-red-100 text-red-800" };
     default:
       return { label: status.charAt(0).toUpperCase() + status.slice(1).replace('-', ' '), color: "bg-gray-100 text-gray-800" };
   }
