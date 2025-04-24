@@ -80,7 +80,9 @@ export default function DoctorDashboard() {
             </CardContent>
           </Card>
           
-          <DoctorDashboardContent />
+          <div className="lg:col-span-2">
+            <DoctorDashboardContent />
+          </div>
         </div>
       </div>
     </DoctorPortalPage>

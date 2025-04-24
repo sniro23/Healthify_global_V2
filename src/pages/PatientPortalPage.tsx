@@ -33,7 +33,7 @@ const PatientPortalPage = () => {
       </div>
       
       {isAuthorized() && !hasPatientContext && (
-        <Alert variant="warning" className="m-3">
+        <Alert className="m-3">
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Patient Context Missing</AlertTitle>
           <AlertDescription>

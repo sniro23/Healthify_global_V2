@@ -1,0 +1,213 @@
+
+import { Database } from './types';
+
+/**
+ * Extend the Supabase Database type to include FHIR-related tables
+ */
+export interface FHIRDatabase extends Database {
+  public: {
+    Tables: {
+      patients: {
+        Row: {
+          id: string;
+          fhir_id: string;
+          fhir_resource: any;
+          user_id: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          fhir_id: string;
+          fhir_resource: any;
+          user_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          fhir_id?: string;
+          fhir_resource?: any;
+          user_id?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      observations: {
+        Row: {
+          id: string;
+          fhir_id: string;
+          fhir_resource: any;
+          patient_id: string;
+          category: string[];
+          code: string;
+          effective_date: string | null;
+          status: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          fhir_id: string;
+          fhir_resource: any;
+          patient_id: string;
+          category: string[];
+          code: string;
+          effective_date?: string | null;
+          status: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          fhir_id?: string;
+          fhir_resource?: any;
+          patient_id?: string;
+          category?: string[];
+          code?: string;
+          effective_date?: string | null;
+          status?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      conditions: {
+        Row: {
+          id: string;
+          fhir_id: string;
+          fhir_resource: any;
+          patient_id: string;
+          code: string;
+          clinical_status: string;
+          verification_status: string | null;
+          category: string[];
+          onset_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          fhir_id: string;
+          fhir_resource: any;
+          patient_id: string;
+          code: string;
+          clinical_status: string;
+          verification_status?: string | null;
+          category: string[];
+          onset_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          fhir_id?: string;
+          fhir_resource?: any;
+          patient_id?: string;
+          code?: string;
+          clinical_status?: string;
+          verification_status?: string | null;
+          category?: string[];
+          onset_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      diagnostic_reports: {
+        Row: {
+          id: string;
+          fhir_id: string;
+          fhir_resource: any;
+          patient_id: string;
+          code: string;
+          status: string;
+          category: string[];
+          issued_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          fhir_id: string;
+          fhir_resource: any;
+          patient_id: string;
+          code: string;
+          status: string;
+          category: string[];
+          issued_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          fhir_id?: string;
+          fhir_resource?: any;
+          patient_id?: string;
+          code?: string;
+          status?: string;
+          category?: string[];
+          issued_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      audit_logs: {
+        Row: {
+          id: string;
+          user_id: string;
+          action: string;
+          resource_type: string;
+          resource_id: string | null;
+          details: any;
+          ip_address: string | null;
+          user_agent: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          action: string;
+          resource_type: string;
+          resource_id?: string | null;
+          details: any;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          action?: string;
+          resource_type?: string;
+          resource_id?: string | null;
+          details?: any;
+          ip_address?: string | null;
+          user_agent?: string | null;
+          created_at?: string;
+        };
+      };
+      user_permissions: {
+        Row: {
+          id: string;
+          user_id: string;
+          resource_type: string;
+          permission: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          resource_type: string;
+          permission: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          resource_type?: string;
+          permission?: string;
+          created_at?: string;
+        };
+      };
+    };
+  };
+}

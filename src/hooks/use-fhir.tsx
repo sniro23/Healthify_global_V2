@@ -1,4 +1,3 @@
-
 import { useState, useCallback } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
@@ -425,7 +424,7 @@ export function useFHIRValidate<T extends FHIRResource>() {
           toast({
             title: "Validation Issues",
             description: `Found ${results.issues?.length || 0} issues with this resource`,
-            variant: "destructive"  // Changed from "warning" to "destructive"
+            variant: "destructive"
           });
         }
         
@@ -458,7 +457,7 @@ export function useFHIRBundle(options?: {
   
   // Transaction bundle processing
   const transactionMutation = useMutation({
-    mutationFn: async (bundle: FHIRBundle) => {
+    mutationFn: async (bundle: FHIRBundle): Promise<FHIRBundle> => {
       // Check if user has appropriate scope
       if (isAuthorized() && !hasScope('Bundle.write')) {
         throw new Error('Missing required scope to process transaction bundles');
@@ -475,7 +474,7 @@ export function useFHIRBundle(options?: {
       auditLog.logOperation(
         'Bundle',
         'transaction',
-        data.id,
+        data.id || 'unknown',
         AuditOutcomeCode.SUCCESS
       );
       
@@ -508,7 +507,7 @@ export function useFHIRBundle(options?: {
   
   // Batch bundle processing
   const batchMutation = useMutation({
-    mutationFn: async (bundle: FHIRBundle) => {
+    mutationFn: async (bundle: FHIRBundle): Promise<FHIRBundle> => {
       // Check if user has appropriate scope
       if (isAuthorized() && !hasScope('Bundle.write')) {
         throw new Error('Missing required scope to process batch bundles');
@@ -525,7 +524,7 @@ export function useFHIRBundle(options?: {
       auditLog.logOperation(
         'Bundle',
         'batch',
-        data.id,
+        data.id || 'unknown',
         AuditOutcomeCode.SUCCESS
       );
       

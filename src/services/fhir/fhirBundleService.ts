@@ -15,7 +15,8 @@ import { FHIRResource } from '@/models/fhir/common';
  */
 export interface FHIRBundle {
   resourceType: 'Bundle';
-  type: 'transaction' | 'batch' | 'document' | 'collection' | 'history' | 'searchset';
+  id?: string; // Added optional id property
+  type: 'transaction' | 'batch' | 'document' | 'collection' | 'history' | 'searchset' | 'transaction-response' | 'batch-response';
   total?: number;
   link?: Array<{
     relation: string;
@@ -74,7 +75,7 @@ export const processTransactionBundle = async (bundle: FHIRBundle): Promise<FHIR
   
   return {
     resourceType: 'Bundle',
-    type: 'transaction-response',
+    type: 'transaction-response' as 'transaction',
     entry: bundle.entry?.map(entry => ({
       response: {
         status: '201 Created',
@@ -96,7 +97,7 @@ export const processBatchBundle = async (bundle: FHIRBundle): Promise<FHIRBundle
   
   return {
     resourceType: 'Bundle',
-    type: 'batch-response',
+    type: 'batch-response' as 'batch',
     entry: bundle.entry?.map(entry => ({
       response: {
         status: '200 OK',
