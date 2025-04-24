@@ -10,6 +10,10 @@ import {
   executeFHIROperation,
   validateFHIRResource
 } from '@/services/fhir/fhirApiService';
+import { FHIRBundle, processTransactionBundle, processBatchBundle } from '@/services/fhir/fhirBundleService';
+import { isResourceTypeSupported, isOperationSupported } from '@/services/fhir/capabilityStatementService';
+import { useAuditLog, AuditActionType, AuditOutcomeCode } from '@/services/fhir/auditLogService';
+import { useSMARTAuth } from '@/services/auth/smartAuthService';
 import { useToast } from './use-toast';
 
 /**
@@ -43,9 +47,42 @@ export function useFHIRSearch<T extends FHIRResource>(
     refetchOnWindowFocus?: boolean;
   }
 ) {
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
+  
+  // Check if resource type is supported by the server
+  const isSupported = isResourceTypeSupported(resourceType);
+  
+  // Check if user has appropriate scope
+  const hasReadScope = hasScope(`${resourceType}.read`) || hasScope(`${resourceType}.*`) || hasScope('*.*');
+  
   return useQuery({
     queryKey: ['fhir', resourceType, 'search', params],
-    queryFn: () => searchFHIRResources<T>(resourceType, params),
+    queryFn: async () => {
+      // Check if resource type is supported
+      if (!isSupported) {
+        throw new Error(`Resource type ${resourceType} is not supported by this FHIR server`);
+      }
+      
+      // Check if user has appropriate scope
+      if (isAuthorized() && !hasReadScope) {
+        throw new Error(`Missing required scope to read ${resourceType} resources`);
+      }
+      
+      const results = await searchFHIRResources<T>(resourceType, params);
+      
+      // Audit the search access
+      auditLog.logAccess(
+        resourceType, 
+        'search', 
+        AuditActionType.READ,
+        AuditOutcomeCode.SUCCESS,
+        `Search ${resourceType} with params: ${JSON.stringify(params)}`
+      );
+      
+      return results;
+    },
+    enabled: (options?.enabled !== false) && isSupported,
     ...options
   });
 }
@@ -62,10 +99,45 @@ export function useFHIRResource<T extends FHIRResource>(
     refetchOnWindowFocus?: boolean;
   }
 ) {
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
+  
+  // Check if resource type is supported by the server
+  const isSupported = isResourceTypeSupported(resourceType);
+  
+  // Check if user has appropriate scope
+  const hasReadScope = hasScope(`${resourceType}.read`) || hasScope(`${resourceType}.*`) || hasScope('*.*');
+  
   return useQuery({
     queryKey: ['fhir', resourceType, id],
-    queryFn: () => id ? readFHIRResource<T>(resourceType, id) : Promise.reject('ID is required'),
-    enabled: !!id && (options?.enabled !== false),
+    queryFn: async () => {
+      // Check if resource type is supported
+      if (!isSupported) {
+        throw new Error(`Resource type ${resourceType} is not supported by this FHIR server`);
+      }
+      
+      // Check if user has appropriate scope
+      if (isAuthorized() && !hasReadScope) {
+        throw new Error(`Missing required scope to read ${resourceType} resource`);
+      }
+      
+      if (!id) {
+        throw new Error('ID is required');
+      }
+      
+      const result = await readFHIRResource<T>(resourceType, id);
+      
+      // Audit the resource access
+      auditLog.logAccess(
+        resourceType, 
+        id, 
+        AuditActionType.READ,
+        AuditOutcomeCode.SUCCESS
+      );
+      
+      return result;
+    },
+    enabled: !!id && (options?.enabled !== false) && isSupported,
     ...options
   });
 }
@@ -79,12 +151,39 @@ export function useFHIRCreate<T extends FHIRResource>(options?: {
 }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
   
   return useMutation({
-    mutationFn: (resource: T) => createFHIRResource<T>(resource),
+    mutationFn: async (resource: T) => {
+      // Check if resource type is supported
+      const isSupported = isResourceTypeSupported(resource.resourceType);
+      if (!isSupported) {
+        throw new Error(`Resource type ${resource.resourceType} is not supported by this FHIR server`);
+      }
+      
+      // Check if user has appropriate scope
+      const hasWriteScope = hasScope(`${resource.resourceType}.write`) || 
+        hasScope(`${resource.resourceType}.*`) || 
+        hasScope('*.*');
+      
+      if (isAuthorized() && !hasWriteScope) {
+        throw new Error(`Missing required scope to create ${resource.resourceType} resources`);
+      }
+      
+      return createFHIRResource<T>(resource);
+    },
     onSuccess: (data) => {
       // Invalidate queries for this resource type
       queryClient.invalidateQueries({ queryKey: ['fhir', data.resourceType] });
+      
+      // Audit the resource creation
+      auditLog.logAccess(
+        data.resourceType, 
+        data.id || 'unknown', 
+        AuditActionType.CREATE,
+        AuditOutcomeCode.SUCCESS
+      );
       
       toast({
         title: "Resource Created",
@@ -114,9 +213,28 @@ export function useFHIRUpdate<T extends FHIRResource>(options?: {
 }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
   
   return useMutation({
-    mutationFn: (resource: T) => updateFHIRResource<T>(resource),
+    mutationFn: async (resource: T) => {
+      // Check if resource type is supported
+      const isSupported = isResourceTypeSupported(resource.resourceType);
+      if (!isSupported) {
+        throw new Error(`Resource type ${resource.resourceType} is not supported by this FHIR server`);
+      }
+      
+      // Check if user has appropriate scope
+      const hasWriteScope = hasScope(`${resource.resourceType}.write`) || 
+        hasScope(`${resource.resourceType}.*`) || 
+        hasScope('*.*');
+      
+      if (isAuthorized() && !hasWriteScope) {
+        throw new Error(`Missing required scope to update ${resource.resourceType} resources`);
+      }
+      
+      return updateFHIRResource<T>(resource);
+    },
     onSuccess: (data) => {
       // Invalidate specific resource query
       queryClient.invalidateQueries({ 
@@ -127,6 +245,14 @@ export function useFHIRUpdate<T extends FHIRResource>(options?: {
       queryClient.invalidateQueries({ 
         queryKey: ['fhir', data.resourceType, 'search'] 
       });
+      
+      // Audit the resource update
+      auditLog.logAccess(
+        data.resourceType, 
+        data.id || 'unknown', 
+        AuditActionType.UPDATE,
+        AuditOutcomeCode.SUCCESS
+      );
       
       toast({
         title: "Resource Updated",
@@ -156,15 +282,41 @@ export function useFHIRDelete(options?: {
 }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
   
   return useMutation({
-    mutationFn: ({ resourceType, id }: { resourceType: string; id: string }) => 
-      deleteFHIRResource(resourceType, id),
+    mutationFn: async ({ resourceType, id }: { resourceType: string; id: string }) => {
+      // Check if resource type is supported
+      const isSupported = isResourceTypeSupported(resourceType);
+      if (!isSupported) {
+        throw new Error(`Resource type ${resourceType} is not supported by this FHIR server`);
+      }
+      
+      // Check if user has appropriate scope
+      const hasWriteScope = hasScope(`${resourceType}.write`) || 
+        hasScope(`${resourceType}.*`) || 
+        hasScope('*.*');
+      
+      if (isAuthorized() && !hasWriteScope) {
+        throw new Error(`Missing required scope to delete ${resourceType} resources`);
+      }
+      
+      return deleteFHIRResource(resourceType, id);
+    },
     onSuccess: (_, variables) => {
       // Invalidate queries for this resource type
       queryClient.invalidateQueries({ 
         queryKey: ['fhir', variables.resourceType] 
       });
+      
+      // Audit the resource deletion
+      auditLog.logAccess(
+        variables.resourceType, 
+        variables.id, 
+        AuditActionType.DELETE,
+        AuditOutcomeCode.SUCCESS
+      );
       
       toast({
         title: "Resource Deleted",
@@ -193,12 +345,46 @@ export function useFHIROperation<T>(
   operation: string,
 ) {
   const { toast } = useToast();
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
   
   const executeOperation = useCallback(
     async (id?: string, parameters?: any) => {
       try {
-        return await executeFHIROperation<T>(resourceType, operation, id, parameters);
+        // Check if operation is supported
+        const isSupported = isOperationSupported(resourceType, operation);
+        if (!isSupported) {
+          throw new Error(`Operation ${operation} is not supported for ${resourceType}`);
+        }
+        
+        // Check if user has appropriate scope
+        const hasOpScope = hasScope(`${resourceType}.*`) || hasScope('*.*');
+        
+        if (isAuthorized() && !hasOpScope) {
+          throw new Error(`Missing required scope to execute operations on ${resourceType}`);
+        }
+        
+        const result = await executeFHIROperation<T>(resourceType, operation, id, parameters);
+        
+        // Audit the operation
+        auditLog.logOperation(
+          resourceType,
+          operation,
+          id,
+          AuditOutcomeCode.SUCCESS
+        );
+        
+        return result;
       } catch (error) {
+        // Audit the failed operation
+        auditLog.logOperation(
+          resourceType,
+          operation,
+          id,
+          AuditOutcomeCode.SERIOUS,
+          error instanceof Error ? error.message : "An error occurred"
+        );
+        
         toast({
           title: "Operation Failed",
           description: error instanceof Error ? error.message : "An error occurred",
@@ -207,7 +393,7 @@ export function useFHIROperation<T>(
         throw error;
       }
     },
-    [resourceType, operation, toast]
+    [resourceType, operation, toast, auditLog, isAuthorized, hasScope]
   );
   
   return { executeOperation };
@@ -257,4 +443,122 @@ export function useFHIRValidate<T extends FHIRResource>() {
   );
   
   return { validate, validationResults };
+}
+
+/**
+ * Hook for processing FHIR bundles (transaction, batch)
+ */
+export function useFHIRBundle(options?: {
+  onSuccess?: (bundle: FHIRBundle) => void;
+  onError?: (error: Error) => void;
+}) {
+  const { toast } = useToast();
+  const auditLog = useAuditLog();
+  const { isAuthorized, hasScope } = useSMARTAuth();
+  
+  // Transaction bundle processing
+  const transactionMutation = useMutation({
+    mutationFn: async (bundle: FHIRBundle) => {
+      // Check if user has appropriate scope
+      if (isAuthorized() && !hasScope('Bundle.write')) {
+        throw new Error('Missing required scope to process transaction bundles');
+      }
+      
+      if (bundle.type !== 'transaction') {
+        throw new Error('Bundle type must be "transaction"');
+      }
+      
+      return processTransactionBundle(bundle);
+    },
+    onSuccess: (data) => {
+      // Audit the transaction
+      auditLog.logOperation(
+        'Bundle',
+        'transaction',
+        data.id,
+        AuditOutcomeCode.SUCCESS
+      );
+      
+      toast({
+        title: "Transaction Completed",
+        description: `Processed ${data.entry?.length || 0} operations successfully`,
+      });
+      
+      options?.onSuccess?.(data);
+    },
+    onError: (error: Error) => {
+      // Audit the failed transaction
+      auditLog.logOperation(
+        'Bundle',
+        'transaction',
+        undefined,
+        AuditOutcomeCode.SERIOUS,
+        error.message
+      );
+      
+      toast({
+        title: "Transaction Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+      
+      options?.onError?.(error);
+    }
+  });
+  
+  // Batch bundle processing
+  const batchMutation = useMutation({
+    mutationFn: async (bundle: FHIRBundle) => {
+      // Check if user has appropriate scope
+      if (isAuthorized() && !hasScope('Bundle.write')) {
+        throw new Error('Missing required scope to process batch bundles');
+      }
+      
+      if (bundle.type !== 'batch') {
+        throw new Error('Bundle type must be "batch"');
+      }
+      
+      return processBatchBundle(bundle);
+    },
+    onSuccess: (data) => {
+      // Audit the batch operation
+      auditLog.logOperation(
+        'Bundle',
+        'batch',
+        data.id,
+        AuditOutcomeCode.SUCCESS
+      );
+      
+      toast({
+        title: "Batch Completed",
+        description: `Processed ${data.entry?.length || 0} operations`,
+      });
+      
+      options?.onSuccess?.(data);
+    },
+    onError: (error: Error) => {
+      // Audit the failed batch operation
+      auditLog.logOperation(
+        'Bundle',
+        'batch',
+        undefined,
+        AuditOutcomeCode.SERIOUS,
+        error.message
+      );
+      
+      toast({
+        title: "Batch Failed",
+        description: error.message,
+        variant: "destructive"
+      });
+      
+      options?.onError?.(error);
+    }
+  });
+  
+  return {
+    processTransaction: transactionMutation.mutate,
+    processBatch: batchMutation.mutate,
+    isProcessing: transactionMutation.isPending || batchMutation.isPending
+  };
 }
