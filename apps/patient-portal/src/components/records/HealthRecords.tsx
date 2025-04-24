@@ -1,8 +1,11 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle, Button } from "@healthify/ui-kit";
-import { Heart, TestTube, Activity, User, FileText, Edit, Pill } from "lucide-react";
-import RecordCard from "./RecordCard";
+'use client';
+
+import React, { useEffect, useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, Button, Badge } from '@healthify/ui-kit';
+import { Heart, TestTube, Activity, User, FileText, Edit, Pill } from 'lucide-react';
+import Link from 'next/link';
+import RecordCard from './RecordCard';
+import { createFHIRClient } from '@healthify/fhir-server';
 
 const mockRecords = [
   {
@@ -55,7 +58,7 @@ const HealthRecords = () => {
           <Button className="bg-health-primary hover:bg-health-primary/90">
             <Edit className="h-4 w-4 mr-2" /> Edit Health Info
           </Button>
-          <Link to="/patient/records/labs">
+          <Link href="/patient/records/labs">
             <Button variant="outline">
               <TestTube className="h-4 w-4 mr-2" /> Lab Reports
             </Button>
@@ -207,7 +210,7 @@ const HealthRecords = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <Link to="/patient/prescriptions" className="text-sm text-health-primary hover:underline">
+              <Link href="/patient/prescriptions" className="text-sm text-health-primary hover:underline">
                 View active prescriptions
               </Link>
             </CardContent>
