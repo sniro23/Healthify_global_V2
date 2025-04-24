@@ -242,4 +242,4 @@ export function useSMARTAuth() {
     isLoading,
     error
   };
-}
+} 

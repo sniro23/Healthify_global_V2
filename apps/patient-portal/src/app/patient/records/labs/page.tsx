@@ -1,10 +1,5 @@
-
-import { LabReports } from "@/components/records/lab-reports";
+import LabReports from '../../../../components/records/LabReports';
 
 export default function LabReportsPage() {
-  return (
-    <main className="flex min-h-screen flex-col">
-      <LabReports />
-    </main>
-  );
+  return <LabReports />;
 }
