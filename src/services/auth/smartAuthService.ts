@@ -1,333 +1,258 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom';
+import { fhirclient } from 'fhirclient/lib/lib';
+import { Client } from 'fhirclient';
 
-/**
- * SMART on FHIR Authentication Service
- * 
- * Implements OAuth 2.0 support with SMART on FHIR scopes
- * for secure access to FHIR resources.
- */
-
-export interface SMARTAuthConfiguration {
-  clientId: string;
-  redirectUri: string;
-  scope: string;
-  iss: string;
-  authEndpoint: string;
-  tokenEndpoint: string;
-}
+const clientId = 'healthify-portal';
+const redirectUri = 'http://localhost:5173';
+const scopes = [
+  'openid',
+  'fhirUser',
+  'patient/*.read',
+  'observation/*.read',
+  'condition/*.read',
+  'diagnosticreport/*.read',
+  'launch/patient',
+  'offline_access'
+];
 
 export interface SMARTAuthContext {
   accessToken: string | null;
-  tokenType: string | null;
-  expiresIn: number | null;
-  scope: string | null;
+  refreshToken: string | null;
+  tokenExpiresAt: number | null;
   subject: string | null;
   patientId: string | null;
-  refreshToken: string | null;
-  idToken: string | null;
-  isAuthenticated: boolean;
+  scopes: string[];
 }
 
-// Default SMART auth configuration for mock server
-const defaultSMARTConfig: SMARTAuthConfiguration = {
-  clientId: 'healthify_client',
-  redirectUri: `${window.location.origin}/smart-callback`,
-  scope: 'launch/patient patient/*.read openid fhirUser',
-  iss: 'http://localhost:8000/fhir',
-  authEndpoint: 'http://localhost:8000/auth/authorize',
-  tokenEndpoint: 'http://localhost:8000/auth/token'
+// Initialize the SMART client
+export const smartClient = {
+  client: null as Client | null,
+  getAuthContext: (): SMARTAuthContext => {
+    const accessToken = localStorage.getItem('access_token');
+    const refreshToken = localStorage.getItem('refresh_token');
+    const tokenExpiresAt = localStorage.getItem('token_expires_at');
+    const subject = localStorage.getItem('subject');
+    const patientId = localStorage.getItem('patient_id');
+    const scopes = localStorage.getItem('scopes')?.split(',') || [];
+    
+    return {
+      accessToken,
+      refreshToken,
+      tokenExpiresAt: tokenExpiresAt ? parseInt(tokenExpiresAt, 10) : null,
+      subject,
+      patientId,
+      scopes
+    } as SMARTAuthContext;
+  },
+  clearAuthContext: () => {
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('token_expires_at');
+    localStorage.removeItem('subject');
+    localStorage.removeItem('patient_id');
+    localStorage.removeItem('scopes');
+  },
+  setAuthContext: (
+    accessToken: string,
+    refreshToken: string,
+    expiresIn: number,
+    subject: string,
+    patientId: string | null,
+    scopes: string[]
+  ) => {
+    localStorage.setItem('access_token', accessToken);
+    localStorage.setItem('refresh_token', refreshToken);
+    localStorage.setItem('token_expires_at', (Date.now() + expiresIn * 1000).toString());
+    localStorage.setItem('subject', subject);
+    localStorage.setItem('patient_id', patientId || '');
+    localStorage.setItem('scopes', scopes.join(','));
+  }
 };
 
-/**
- * SMART on FHIR Client for OAuth 2.0 authentication
- */
-export class SMARTClient {
-  private config: SMARTAuthConfiguration;
-  private authContext: SMARTAuthContext = {
-    accessToken: null,
-    tokenType: null,
-    expiresIn: null,
-    scope: null,
-    subject: null,
-    patientId: null,
-    refreshToken: null,
-    idToken: null,
-    isAuthenticated: false
-  };
-
-  constructor(config: Partial<SMARTAuthConfiguration> = {}) {
-    this.config = {
-      ...defaultSMARTConfig,
-      ...config
-    };
+export function useSMARTAuth() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [session, setSession] = useState(smartClient.getAuthContext());
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  
+  useEffect(() => {
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
     
-    // Try to restore auth context from session storage
-    this.restoreAuthContextFromStorage();
-  }
-
-  /**
-   * Initiate the SMART authorization process
-   */
-  authorize(): void {
-    // Generate a random state parameter to prevent CSRF
-    const state = Math.random().toString(36).substring(2);
-    sessionStorage.setItem('smart_auth_state', state);
-    
-    // Construct the authorization URL
-    const authUrl = new URL(this.config.authEndpoint);
-    authUrl.searchParams.append('response_type', 'code');
-    authUrl.searchParams.append('client_id', this.config.clientId);
-    authUrl.searchParams.append('redirect_uri', this.config.redirectUri);
-    authUrl.searchParams.append('scope', this.config.scope);
-    authUrl.searchParams.append('state', state);
-    authUrl.searchParams.append('aud', this.config.iss);
-    
-    // Redirect the user to the authorization endpoint
-    window.location.href = authUrl.toString();
-  }
-
-  /**
-   * Handle the authorization callback
-   * @param queryParams The query parameters from the callback URL
-   */
-  async handleCallback(queryParams: URLSearchParams): Promise<SMARTAuthContext> {
-    const code = queryParams.get('code');
-    const state = queryParams.get('state');
-    const error = queryParams.get('error');
-    const storedState = sessionStorage.getItem('smart_auth_state');
-    
-    // Clean up the stored state
-    sessionStorage.removeItem('smart_auth_state');
-    
-    // Check for errors and state mismatch
-    if (error) {
-      throw new Error(`Authorization error: ${error}`);
+    if (code && state) {
+      handleAuthorizationResponse(code, state);
     }
+  }, [searchParams, navigate]);
+  
+  const handleAuthorizationResponse = async (code: string, state: string) => {
+    setIsLoading(true);
+    setError(null);
     
-    if (state !== storedState) {
-      throw new Error('State mismatch. Possible CSRF attack.');
-    }
-    
-    if (!code) {
-      throw new Error('No authorization code received');
-    }
-    
-    // Exchange the authorization code for tokens
     try {
-      // For mock implementation, we'll simulate a successful token response
-      if (process.env.NODE_ENV === 'development') {
-        const mockTokenResponse = this.getMockTokenResponse(code);
-        this.processTokenResponse(mockTokenResponse);
-        return this.authContext;
-      } else {
-        const tokenResponse = await this.fetchTokens(code);
-        this.processTokenResponse(tokenResponse);
-        return this.authContext;
+      // Exchange the authorization code for an access token
+      const tokenResponse = await fhirclient(
+        {
+          clientId,
+          scope: scopes.join(' '),
+          redirectUri,
+        }
+      ).auth.token({ code, state });
+      
+      const accessToken = tokenResponse.access_token;
+      const refreshToken = tokenResponse.refresh_token;
+      const expiresIn = tokenResponse.expires_in;
+      const subject = tokenResponse.patient;
+      
+      if (!accessToken || !refreshToken || !expiresIn || !subject) {
+        throw new Error('Failed to retrieve tokens or subject from token response');
       }
-    } catch (error) {
-      console.error('Error exchanging code for tokens:', error);
-      throw error;
+      
+      // Fetch the patient ID
+      const client = await fhirclient(
+        {
+          clientId,
+          scope: scopes.join(' '),
+          redirectUri,
+        }
+      ).client();
+      
+      const patient = await client.request(`Patient/${subject}`);
+      const patientId = patient.id;
+      
+      if (!patientId) {
+        throw new Error('Failed to retrieve patient ID');
+      }
+      
+      // Set the session
+      smartClient.setAuthContext(
+        accessToken,
+        refreshToken,
+        expiresIn,
+        subject,
+        patientId,
+        scopes
+      );
+      
+      setSession({
+        accessToken,
+        refreshToken,
+        tokenExpiresAt: Date.now() + expiresIn * 1000,
+        subject,
+        patientId,
+        scopes
+      });
+      
+      // Remove the code and state from the URL
+      searchParams.delete('code');
+      searchParams.delete('state');
+      navigate({ search: searchParams.toString() }, { replace: true });
+    } catch (e: any) {
+      console.error('Failed to complete authorization flow', e);
+      setError(e.message || 'Failed to complete authorization flow');
+    } finally {
+      setIsLoading(false);
     }
-  }
-
-  /**
-   * Refresh the access token using the refresh token
-   */
-  async refreshAccessToken(): Promise<SMARTAuthContext> {
-    if (!this.authContext.refreshToken) {
+  };
+  
+  const authorize = useCallback(() => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      fhirclient(
+        {
+          clientId,
+          scope: scopes.join(' '),
+          redirectUri,
+        }
+      ).auth.authorize({
+        clientId,
+        scope: scopes.join(' '),
+        redirectUri,
+      });
+    } catch (e: any) {
+      console.error('Failed to initiate authorization flow', e);
+      setError(e.message || 'Failed to initiate authorization flow');
+      setIsLoading(false);
+    }
+  }, []);
+  
+  const logout = useCallback(() => {
+    smartClient.clearAuthContext();
+    setSession({
+      accessToken: null,
+      refreshToken: null,
+      tokenExpiresAt: null,
+      subject: null,
+      patientId: null,
+      scopes: []
+    });
+  }, []);
+  
+  const isAuthorized = useCallback(() => {
+    return !!session.accessToken && !!session.refreshToken;
+  }, [session.accessToken, session.refreshToken]);
+  
+  const getAuthContext = useCallback(() => {
+    return session;
+  }, [session]);
+  
+  const getPatientId = useCallback(() => {
+    return session.patientId;
+  }, [session.patientId]);
+  
+  const getAccessToken = useCallback(() => {
+    return session.accessToken;
+  }, [session.accessToken]);
+  
+  const hasScope = useCallback((scope: string) => {
+    return session.scopes.includes(scope);
+  }, [session.scopes]);
+  
+  const refreshTokens = async () => {
+    if (!session.refreshToken) {
       throw new Error('No refresh token available');
     }
     
     try {
-      // For mock implementation, we'll simulate a successful token response
-      if (process.env.NODE_ENV === 'development') {
-        const mockTokenResponse = this.getMockTokenResponse('refresh');
-        this.processTokenResponse(mockTokenResponse);
-        return this.authContext;
-      } else {
-        const tokenResponse = await this.fetchTokensWithRefresh();
-        this.processTokenResponse(tokenResponse);
-        return this.authContext;
+      const response = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken: session.refreshToken }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to refresh tokens');
       }
+      
+      const { accessToken, refreshToken, expiresIn } = await response.json();
+      
+      setSession({
+        ...session,
+        accessToken,
+        refreshToken,
+        tokenExpiresAt: Date.now() + expiresIn * 1000,
+      });
+      
+      return accessToken;
     } catch (error) {
       console.error('Error refreshing tokens:', error);
       throw error;
     }
-  }
-
-  /**
-   * Check if the current user is authorized
-   */
-  isAuthorized(): boolean {
-    return this.authContext.isAuthenticated;
-  }
-
-  /**
-   * Get the current auth context
-   */
-  getAuthContext(): SMARTAuthContext {
-    return this.authContext;
-  }
-
-  /**
-   * Get the patient ID from the current context
-   */
-  getPatientId(): string | null {
-    return this.authContext.patientId;
-  }
-
-  /**
-   * Get the access token for API requests
-   */
-  getAccessToken(): string | null {
-    return this.authContext.accessToken;
-  }
-
-  /**
-   * Clear the current authorization state
-   */
-  logout(): void {
-    this.authContext = {
-      accessToken: null,
-      tokenType: null,
-      expiresIn: null,
-      scope: null,
-      subject: null,
-      patientId: null,
-      refreshToken: null,
-      idToken: null,
-      isAuthenticated: false
-    };
-    
-    // Clear stored auth context
-    sessionStorage.removeItem('smart_auth_context');
-  }
-
-  /**
-   * Check if the user has a specific scope
-   */
-  hasScope(scope: string): boolean {
-    if (!this.authContext.scope) return false;
-    return this.authContext.scope.split(' ').includes(scope);
-  }
-
-  /**
-   * Helper method to exchange code for tokens
-   */
-  private async fetchTokens(code: string): Promise<any> {
-    const response = await fetch(this.config.tokenEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'authorization_code',
-        code,
-        client_id: this.config.clientId,
-        redirect_uri: this.config.redirectUri
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Token request failed: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
-
-  /**
-   * Helper method to refresh tokens
-   */
-  private async fetchTokensWithRefresh(): Promise<any> {
-    const response = await fetch(this.config.tokenEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: new URLSearchParams({
-        grant_type: 'refresh_token',
-        refresh_token: this.authContext.refreshToken!,
-        client_id: this.config.clientId
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`Token refresh failed: ${response.status} ${response.statusText}`);
-    }
-    
-    return await response.json();
-  }
-
-  /**
-   * Process the token response and update auth context
-   */
-  private processTokenResponse(tokenResponse: any): void {
-    this.authContext = {
-      accessToken: tokenResponse.access_token,
-      tokenType: tokenResponse.token_type,
-      expiresIn: tokenResponse.expires_in,
-      scope: tokenResponse.scope,
-      subject: tokenResponse.subject,
-      patientId: tokenResponse.patient,
-      refreshToken: tokenResponse.refresh_token,
-      idToken: tokenResponse.id_token,
-      isAuthenticated: true
-    };
-    
-    // Store auth context in session storage
-    this.saveAuthContextToStorage();
-  }
-
-  /**
-   * Save auth context to session storage
-   */
-  private saveAuthContextToStorage(): void {
-    sessionStorage.setItem('smart_auth_context', JSON.stringify(this.authContext));
-  }
-
-  /**
-   * Restore auth context from session storage
-   */
-  private restoreAuthContextFromStorage(): void {
-    const storedContext = sessionStorage.getItem('smart_auth_context');
-    if (storedContext) {
-      try {
-        this.authContext = JSON.parse(storedContext);
-      } catch (error) {
-        console.error('Failed to parse stored auth context:', error);
-      }
-    }
-  }
-
-  /**
-   * Get mock token response for development
-   */
-  private getMockTokenResponse(code: string): any {
-    return {
-      access_token: `mock_access_token_${code}_${Date.now()}`,
-      token_type: 'Bearer',
-      expires_in: 3600,
-      scope: this.config.scope,
-      subject: 'mock-user-id',
-      patient: 'mock-patient-id',
-      refresh_token: `mock_refresh_token_${Date.now()}`,
-      id_token: `mock_id_token_${Date.now()}`
-    };
-  }
-}
-
-// Create a singleton instance for the application
-export const smartClient = new SMARTClient();
-
-// Export a React hook for components
-export const useSMARTAuth = () => {
-  return {
-    authorize: () => smartClient.authorize(),
-    isAuthorized: () => smartClient.isAuthorized(),
-    getAuthContext: () => smartClient.getAuthContext(),
-    getPatientId: () => smartClient.getPatientId(),
-    getAccessToken: () => smartClient.getAccessToken(),
-    logout: () => smartClient.logout(),
-    hasScope: (scope: string) => smartClient.hasScope(scope),
-    refreshTokens: () => smartClient.refreshAccessToken(),
   };
-};
+  
+  return {
+    authorize,
+    isAuthorized,
+    logout,
+    getAuthContext,
+    getPatientId,
+    getAccessToken,
+    hasScope,
+    refreshTokens,
+  };
+}

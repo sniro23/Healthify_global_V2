@@ -9,7 +9,222 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          id: string
+          ip_address: string | null
+          resource_id: string | null
+          resource_type: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          resource_id?: string | null
+          resource_type?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      conditions: {
+        Row: {
+          category: string[]
+          clinical_status: string
+          code: string
+          created_at: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id: string
+          onset_date: string | null
+          patient_id: string
+          updated_at: string | null
+          verification_status: string | null
+        }
+        Insert: {
+          category: string[]
+          clinical_status: string
+          code: string
+          created_at?: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id?: string
+          onset_date?: string | null
+          patient_id: string
+          updated_at?: string | null
+          verification_status?: string | null
+        }
+        Update: {
+          category?: string[]
+          clinical_status?: string
+          code?: string
+          created_at?: string | null
+          fhir_id?: string
+          fhir_resource?: Json
+          id?: string
+          onset_date?: string | null
+          patient_id?: string
+          updated_at?: string | null
+          verification_status?: string | null
+        }
+        Relationships: []
+      }
+      diagnostic_reports: {
+        Row: {
+          category: string[]
+          code: string
+          created_at: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id: string
+          issued_date: string | null
+          patient_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string[]
+          code: string
+          created_at?: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id?: string
+          issued_date?: string | null
+          patient_id: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string[]
+          code?: string
+          created_at?: string | null
+          fhir_id?: string
+          fhir_resource?: Json
+          id?: string
+          issued_date?: string | null
+          patient_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      observations: {
+        Row: {
+          category: string[]
+          code: string
+          created_at: string | null
+          effective_date: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id: string
+          patient_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          category: string[]
+          code: string
+          created_at?: string | null
+          effective_date?: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id?: string
+          patient_id: string
+          status: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string[]
+          code?: string
+          created_at?: string | null
+          effective_date?: string | null
+          fhir_id?: string
+          fhir_resource?: Json
+          id?: string
+          patient_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      patients: {
+        Row: {
+          created_at: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          fhir_id: string
+          fhir_resource: Json
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          fhir_id?: string
+          fhir_resource?: Json
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string | null
+          first_name: string | null
+          id: string
+          last_name: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id: string
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          last_name?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -18,7 +233,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "patient" | "doctor" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +348,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["patient", "doctor", "admin"],
+    },
   },
 } as const

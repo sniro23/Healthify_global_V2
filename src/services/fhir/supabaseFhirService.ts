@@ -1,39 +1,30 @@
-
 import { supabase } from '@/integrations/supabase/client';
-import { FHIRResource } from '@/models/fhir/common';
 import { ExtendedPatient } from '@/models/fhir/extendedPatient';
 import { FHIRObservation } from '@/models/fhir/observation';
 import { FHIRCondition } from '@/models/fhir/condition';
 import { FHIRDiagnosticReport } from '@/models/fhir/diagnosticReport';
-import { FHIRAuditEvent, AuditActionType, AuditOutcomeCode } from '@/models/fhir/auditEvent';
+import { AuditActionType, AuditOutcomeCode } from '@/models/fhir/auditEvent';
 
-/**
- * Service for integrating FHIR resources with Supabase
- */
 export class SupabaseFHIRService {
   /**
    * Save a patient resource to Supabase
    */
-  public async savePatient(patient: ExtendedPatient, userId?: string): Promise<string> {
+  public async savePatient(patient: ExtendedPatient, userId: string): Promise<string> {
     try {
       // Ensure patient has an ID
       if (!patient.id) {
         patient.id = crypto.randomUUID();
       }
       
-      // Insert the patient into Supabase
       const { data, error } = await supabase
         .from('patients')
         .upsert({
           fhir_id: patient.id,
           fhir_resource: patient,
-          user_id: userId || null,
+          user_id: userId,
           updated_at: new Date().toISOString()
-        }, {
-          onConflict: 'fhir_id',
-          ignoreDuplicates: false
         })
-        .select('id')
+        .select()
         .single();
       
       if (error) {
@@ -41,11 +32,11 @@ export class SupabaseFHIRService {
         throw new Error(`Failed to save patient: ${error.message}`);
       }
       
-      this.logAudit(
-        userId || 'system', 
+      await this.logAudit(
+        userId, 
         patient.id ? AuditActionType.UPDATE : AuditActionType.CREATE,
         'Patient',
-        patient.id || ''
+        patient.id
       );
       
       return data.id;
@@ -344,7 +335,6 @@ export class SupabaseFHIRService {
       return data.id;
     } catch (error) {
       console.error('Error in saveAuditEvent:', error);
-      // Don't throw here, as audit logging failure shouldn't break the main flow
       return 'error';
     }
   }
@@ -376,7 +366,6 @@ export class SupabaseFHIRService {
         });
     } catch (error) {
       console.error('Error logging audit:', error);
-      // Don't throw here, as audit logging failure shouldn't break the main flow
     }
   }
   

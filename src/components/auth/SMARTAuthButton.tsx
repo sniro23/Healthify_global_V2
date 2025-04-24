@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { useSMARTAuth } from '@/services/auth/smartAuthService';
@@ -21,7 +20,7 @@ export const SMARTAuthButton: React.FC<SMARTAuthButtonProps> = ({
     isAuthorized,
     logout,
     getAuthContext,
-    refreshToken
+    refreshTokens
   } = useSMARTAuth();
   
   const { toast } = useToast();
@@ -30,24 +29,20 @@ export const SMARTAuthButton: React.FC<SMARTAuthButtonProps> = ({
   // Check token expiration and refresh if needed
   useEffect(() => {
     const checkTokenExpiration = async () => {
-      if (isAuthorized()) {
-        const tokenExpiresAt = authContext.tokenExpiresAt;
-        
-        if (tokenExpiresAt) {
-          // If token expires in less than 5 minutes, refresh it
-          const fiveMinutesFromNow = new Date().getTime() + 5 * 60 * 1000;
-          if (tokenExpiresAt < fiveMinutesFromNow) {
-            try {
-              await refreshToken();
-              console.log('Token refreshed successfully');
-            } catch (error) {
-              console.error('Failed to refresh token:', error);
-              toast({
-                title: "Session Expiring",
-                description: "Your session will expire soon. Please log in again.",
-                variant: "destructive"
-              });
-            }
+      if (isAuthorized() && authContext.tokenExpiresAt) {
+        // If token expires in less than 5 minutes, refresh it
+        const fiveMinutesFromNow = Date.now() + 5 * 60 * 1000;
+        if (authContext.tokenExpiresAt < fiveMinutesFromNow) {
+          try {
+            await refreshTokens();
+            console.log('Token refreshed successfully');
+          } catch (error) {
+            console.error('Failed to refresh token:', error);
+            toast({
+              title: "Session Expiring",
+              description: "Your session will expire soon. Please log in again.",
+              variant: "destructive"
+            });
           }
         }
       }
@@ -59,7 +54,7 @@ export const SMARTAuthButton: React.FC<SMARTAuthButtonProps> = ({
     const interval = setInterval(checkTokenExpiration, 60 * 1000);
     
     return () => clearInterval(interval);
-  }, [authContext.tokenExpiresAt, isAuthorized, refreshToken, toast]);
+  }, [authContext.tokenExpiresAt, isAuthorized, refreshTokens, toast]);
   
   const handleAuth = () => {
     if (isAuthorized()) {
