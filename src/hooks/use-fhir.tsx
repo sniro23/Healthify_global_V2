@@ -239,7 +239,7 @@ export function useFHIRValidate<T extends FHIRResource>() {
           toast({
             title: "Validation Issues",
             description: `Found ${results.issues?.length || 0} issues with this resource`,
-            variant: "warning"
+            variant: "destructive"  // Changed from "warning" to "destructive"
           });
         }
         
