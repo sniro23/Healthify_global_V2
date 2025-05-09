@@ -1,0 +1,27 @@
+// Basic UI Components
+export * from './components/ui/avatar';
+export * from './components/ui/badge';
+export * from './components/ui/button';
+export * from './components/ui/card';
+export * from './components/ui/dialog';
+export * from './components/ui/form';
+export * from './components/ui/input';
+export * from './components/ui/label';
+export * from './components/ui/tabs';
+
+// Authentication Components
+export { LoginForm } from './components/auth/LoginForm';
+export { RegisterForm } from './components/auth/RegisterForm';
+
+// Navigation Components
+export * from './components/navigation/SideNav';
+export * from './components/navigation/BottomNav';
+
+// EHR Components
+export * from './components/ehr/PatientSummary';
+export * from './components/ehr/MedicationList';
+export * from './components/ehr/ConditionList';
+export * from './components/ehr/ObservationList';
+
+// Auth Module for backward compatibility
+export * as authModule from './auth-module';

@@ -1,0 +1,53 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ],
+      "@/components/*": [
+        "./src/components/*"
+      ],
+      "@/hooks/*": [
+        "./src/hooks/*"
+      ],
+      "@/utils/*": [
+        "./src/utils/*"
+      ],
+      "@/app/*": [
+        "./src/app/*"
+      ],
+      "@/styles/*": [
+        "./src/styles/*"
+      ],
+      "@healthify/ui-kit": [
+        "../../packages/ui-kit/src"
+      ],
+      "@healthify/ui-kit/*": [
+        "../../packages/ui-kit/src/*"
+      ],
+      "@healthify/db": [
+        "../../packages/db/src"
+      ],
+      "@healthify/db/*": [
+        "../../packages/db/src/*"
+      ],
+      "@healthify/fhir-server": [
+        "../../packages/fhir-server/src"
+      ],
+      "@healthify/fhir-server/*": [
+        "../../packages/fhir-server/src/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,0 +1,11 @@
+import { createClient } from '@supabase/supabase-js';
+import { Database } from './types';
+export * from './types';
+export * from './auth/supabase-client';
+
+/**
+ * Creates and returns a configured Supabase client
+ */
+export function getSupabaseClient(supabaseUrl: string, supabaseKey: string) {
+  return createClient<Database>(supabaseUrl, supabaseKey);
+}

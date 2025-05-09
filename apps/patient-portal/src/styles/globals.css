@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --health-primary: rgb(0, 122, 255);
+  --health-primary-dark: rgb(0, 86, 179);
+  --health-secondary: rgb(64, 156, 255);
+  --health-highlight: rgb(229, 240, 255);
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .bg-health-primary {
+    background-color: var(--health-primary);
+  }
+  
+  .bg-health-secondary {
+    background-color: var(--health-secondary);
+  }
+  
+  .bg-health-highlight {
+    background-color: var(--health-highlight);
+  }
+  
+  .text-health-primary {
+    color: var(--health-primary);
+  }
+  
+  .border-health-primary {
+    border-color: var(--health-primary);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+} 
